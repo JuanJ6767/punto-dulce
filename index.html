@@ -157,6 +157,49 @@
     .pos-card-stock.agotado { background: #FEE2E2; color: #991B1B; }
     .pos-card-stock.pocas { background: #FEF3C7; color: #92400E; }
 
+    /* STEPPER DIRECTO EN TARJETA */
+    .pos-card-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 4px 6px;
+      background: #FFEBF2;
+      border: 1.5px solid var(--pink-border);
+      border-radius: 10px;
+    }
+    .btn-card-step {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid var(--pink-border);
+      background: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--pink-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.1s ease;
+    }
+    .btn-card-step:active { transform: scale(0.92); }
+    .btn-card-step.minus { color: #BE123C; border-color: #FECDD3; background: #FFF1F2; }
+    .btn-card-step:disabled { opacity: 0.4; cursor: not-allowed; }
+    .step-count-val {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--pink-primary);
+      min-width: 32px;
+      text-align: center;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 6px;
+    }
+    .step-count-val:hover { background: #FCE7F3; }
+
     /* BARRA INFERIOR DEL CARRITO */
     .pos-cart-bar {
       position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF;
@@ -341,9 +384,15 @@
   <!-- BARRA CARRITO FLOTANTE -->
   <div class="pos-cart-bar">
     <div class="pos-cart-bar-inner">
-      <div>
-        <span class="pos-cart-count" id="cartCountText">🛒 0 paletas</span>
-        <span class="pos-cart-total" id="cartTotalText">$0</span>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="btnVaciarCarrito" onclick="vaciarCarrito()" title="Vaciar pedido" 
+                style="display: none; background: #FFF1F2; border: 1.5px solid #FECDD3; border-radius: 10px; width: 42px; height: 42px; align-items: center; justify-content: center; font-size: 1.15rem; cursor: pointer; color: #BE123C; transition: transform 0.1s ease;">
+          🗑️
+        </button>
+        <div>
+          <span class="pos-cart-count" id="cartCountText">🛒 0 paletas</span>
+          <span class="pos-cart-total" id="cartTotalText">$0</span>
+        </div>
       </div>
       <button class="btn-open-checkout" id="btnOpenCheckout" onclick="abrirModalCobro()" disabled>
         <span>Cobrar</span>
@@ -727,6 +776,18 @@
               <span class="pos-card-price">$${item.precio}</span>
               <span class="pos-card-stock ${stockClass}">${stockText}</span>
             </div>
+
+            ${cantCarrito > 0 ? `
+              <div class="pos-card-stepper" onclick="event.stopPropagation()">
+                <button type="button" class="btn-card-step minus" onclick="modificarCantidadDirecta('${item.id}', -1, event)" title="${cantCarrito === 1 ? 'Quitar del pedido' : 'Quitar 1'}">
+                  ${cantCarrito === 1 ? '🗑️' : '➖'}
+                </button>
+                <span class="step-count-val" onclick="cambiarCantidadDirectaPrompt('${item.id}', event)" title="Toca para ingresar cantidad exacta">${cantCarrito}</span>
+                <button type="button" class="btn-card-step plus" onclick="modificarCantidadDirecta('${item.id}', 1, event)" ${sinMasStock ? 'disabled' : ''} title="Sumar 1">
+                  ➕
+                </button>
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -762,6 +823,86 @@
       actualizarBarraCarrito();
     }
 
+    function modificarCantidadDirecta(id, delta, event) {
+      if (event) event.stopPropagation();
+      const itemInv = inventario.find(i => i.id === id);
+      const itemCar = carrito.find(c => c.id === id);
+      if (!itemInv) return;
+
+      if (!itemCar) {
+        if (delta > 0 && itemInv.stock > 0) {
+          carrito.push({
+            id: itemInv.id,
+            sabor: itemInv.sabor,
+            precio: itemInv.precio,
+            emoji: itemInv.emoji,
+            cantidad: 1
+          });
+        }
+      } else {
+        if (delta > 0 && itemCar.cantidad >= itemInv.stock) {
+          mostrarAvisoRapido(`⚠️ Solo quedan ${itemInv.stock} paletas de ${itemInv.sabor}`);
+          return;
+        }
+        itemCar.cantidad += delta;
+        if (itemCar.cantidad <= 0) {
+          carrito = carrito.filter(c => c.id !== id);
+        }
+      }
+
+      renderizarPOS();
+      actualizarBarraCarrito();
+    }
+
+    function cambiarCantidadDirectaPrompt(id, event) {
+      if (event) event.stopPropagation();
+      const itemInv = inventario.find(i => i.id === id);
+      const itemCar = carrito.find(c => c.id === id);
+      if (!itemInv || !itemCar) return;
+
+      const promptVal = prompt(`Ingresa la cantidad para ${itemInv.sabor} (Stock disponible: ${itemInv.stock}):`, itemCar.cantidad);
+      if (promptVal === null) return; // canceló
+
+      const nuevaCant = parseInt(promptVal, 10);
+      if (isNaN(nuevaCant) || nuevaCant < 0) {
+        mostrarAvisoRapido('Por favor ingresa un número válido');
+        return;
+      }
+
+      if (nuevaCant === 0) {
+        carrito = carrito.filter(c => c.id !== id);
+        mostrarAvisoRapido(`Se removió ${itemInv.sabor} del pedido`);
+      } else if (nuevaCant > itemInv.stock) {
+        mostrarAvisoRapido(`⚠️ Solo hay ${itemInv.stock} en stock. Se ajustó al máximo.`);
+        itemCar.cantidad = itemInv.stock;
+      } else {
+        itemCar.cantidad = nuevaCant;
+        mostrarAvisoRapido(`✅ ${itemInv.sabor}: ${nuevaCant} piezas`);
+      }
+
+      renderizarPOS();
+      actualizarBarraCarrito();
+
+      const modalCobro = document.getElementById('modalCobro');
+      if (modalCobro && !modalCobro.classList.contains('hidden')) {
+        if (carrito.length === 0) {
+          cerrarModales();
+        } else {
+          abrirModalCobro();
+        }
+      }
+    }
+
+    function vaciarCarrito() {
+      if (carrito.length === 0) return;
+      if (confirm('¿Deseas vaciar todas las paletas seleccionadas?')) {
+        carrito = [];
+        renderizarPOS();
+        actualizarBarraCarrito();
+        mostrarAvisoRapido('Carrito vaciado');
+      }
+    }
+
     function actualizarBarraCarrito() {
       const totalPiezas = carrito.reduce((sum, item) => sum + item.cantidad, 0);
       const totalDinero = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
@@ -769,6 +910,11 @@
       document.getElementById('cartCountText').textContent = `🛒 ${totalPiezas} paleta${totalPiezas === 1 ? '' : 's'}`;
       document.getElementById('cartTotalText').textContent = `$${totalDinero}`;
       document.getElementById('btnOpenCheckout').disabled = totalPiezas === 0;
+
+      const btnVaciar = document.getElementById('btnVaciarCarrito');
+      if (btnVaciar) {
+        btnVaciar.style.display = totalPiezas > 0 ? 'inline-flex' : 'none';
+      }
     }
 
     function actualizarBadgesHeader() {
@@ -820,8 +966,8 @@
             </div>
           </div>
           <div class="order-item-stepper">
-            <button class="btn-stepper" onclick="modificarItemCarrito('${item.id}', -1)">-</button>
-            <span style="font-weight: 900; min-width: 20px; text-align: center;">${item.cantidad}</span>
+            <button class="btn-stepper" onclick="modificarItemCarrito('${item.id}', -1)">${item.cantidad === 1 ? '🗑️' : '-'}</button>
+            <span style="font-weight: 900; min-width: 24px; text-align: center; cursor: pointer; padding: 2px 4px; border-radius: 4px; background: #FFF1F2;" onclick="cambiarCantidadDirectaPrompt('${item.id}', event)" title="Toca para ingresar cantidad exacta">${item.cantidad}</span>
             <button class="btn-stepper" onclick="modificarItemCarrito('${item.id}', 1)">+</button>
             <span style="font-weight: 900; margin-left: 6px; min-width: 42px; text-align: right;">$${item.cantidad * item.precio}</span>
           </div>
