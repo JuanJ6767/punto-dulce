@@ -605,6 +605,29 @@ test('Validación de Archivo Manifest PWA para Modo App Móvil', () => {
   assert(Array.isArray(manifest.icons) && manifest.icons.length > 0);
 });
 
+test('Prevención de Cuentas Duplicadas y Acumulación de Saldo por Compañero', () => {
+  const cuentasSimuladas = [
+    { deudor: 'Luis Rodríguez', saldo: 45, folio: '#PD-002' },
+    { deudor: 'Carlos R.', saldo: 30, folio: '#PD-004' },
+    { deudor: 'Luis Rodríguez', saldo: 36, folio: '#PD-008' }
+  ];
+
+  // Agrupación por nombre normalizado
+  const mapaDeudas = {};
+  cuentasSimuladas.forEach(c => {
+    const k = c.deudor.trim().toLowerCase();
+    mapaDeudas[k] = (mapaDeudas[k] || 0) + c.saldo;
+  });
+
+  assert.strictEqual(mapaDeudas['luis rodríguez'], 81, 'El saldo total acumulado de Luis Rodríguez debe ser $81');
+  assert.strictEqual(mapaDeudas['carlos r.'], 30, 'El saldo de Carlos R. debe ser $30');
+
+  // Coincidencia de búsqueda parcial ('luis' encuentra 'Luis Rodríguez')
+  const busqueda = 'luis';
+  const encontrados = cuentasSimuladas.filter(c => c.deudor.toLowerCase().includes(busqueda));
+  assert.strictEqual(encontrados.length, 2, 'Deben encontrarse 2 registros correspondientes a Luis');
+});
+
 console.log('\n========================================================');
 console.log(`RESUMEN DE PRUEBAS: ${passCount} PASADAS, ${failCount} FALLIDAS`);
 console.log('========================================================\n');

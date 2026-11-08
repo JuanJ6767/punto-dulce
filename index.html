@@ -554,7 +554,16 @@
         <label style="font-size:0.85rem; font-weight:900; color:#9F1239; display:block; margin-bottom:4px;">
           👤 ¿Quién se lo lleva? (Nombre o apodo del compañero):
         </label>
-        <input type="text" id="inputDeudorNombre" class="search-input-large" style="min-height:40px; margin-bottom:8px;" placeholder="Ej. Carlos Sistemas, Lic. Ana, Rodrigo...">
+        <div style="position:relative;">
+          <input type="text" id="inputDeudorNombre" list="datalistDeudores" class="search-input-large" style="min-height:40px; margin-bottom:6px;" placeholder="Escribe o selecciona un compañero..." oninput="verificarDeudorExistente()">
+          <datalist id="datalistDeudores"></datalist>
+        </div>
+
+        <!-- BOTONES RÁPIDOS DE CUENTAS ABIERTAS (CHIPS) -->
+        <div id="chipsDeudoresFrecuentes" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;"></div>
+
+        <!-- ALERTA DE SALDO ACUMULADO PREVIO -->
+        <div id="avisoSaldoExistente" class="hidden" style="background:#FEF3C7; border:1px solid #FCD34D; border-radius:8px; padding:6px 8px; margin-bottom:8px; font-size:0.78rem; color:#92400E;"></div>
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
           <div>
@@ -562,7 +571,7 @@
             <input type="number" id="inputDeudorAbono" class="search-input-large" style="min-height:38px; text-align:center;" value="0" min="0" oninput="calcularSaldoDeuda()">
           </div>
           <div>
-            <label style="font-size:0.78rem; font-weight:800; color:#9F1239;">Resta a deber:</label>
+            <label style="font-size:0.78rem; font-weight:800; color:#9F1239;">Resta a deber hoy:</label>
             <div style="font-weight:900; font-size:1.2rem; color:#9F1239; padding-top:6px;" id="textSaldoDeudor">$0</div>
           </div>
         </div>
@@ -676,9 +685,15 @@
       </div>
       <p class="modal-subtitle">Control de paletas fiadas a compañeros de trabajo.</p>
 
-      <div style="background: #FFF1F2; border: 1.5px solid #FECDD3; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="background: #FFF1F2; border: 1.5px solid #FECDD3; border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
         <span style="font-weight: 800; font-size: 0.88rem; color: #9F1239;">Total Pendiente de Cobro:</span>
         <strong style="font-size: 1.4rem; color: #9F1239;" id="deudaGlobalTotal">$0</strong>
+      </div>
+
+      <!-- BUSCADOR DE COMPAÑEROS DEUDORES -->
+      <div class="search-box-wrap" style="margin-bottom: 8px;">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchDeudoresInput" class="search-input-large" style="min-height: 40px; font-size: 0.88rem;" placeholder="Buscar por compañero (Luis, Carlos, Ana)..." oninput="filtrarListaDeudores()">
       </div>
 
       <div style="max-height: 260px; overflow-y: auto;" id="listaDeudores"></div>
@@ -1218,6 +1233,7 @@
       } else if (metodo === 'Fiado') {
         secCash.classList.add('hidden');
         secDebt.classList.remove('hidden');
+        actualizarDatalistDeudores();
         calcularSaldoDeuda();
       }
     }
@@ -1264,6 +1280,86 @@
       const abono = Number(document.getElementById('inputDeudorAbono').value) || 0;
       const saldo = Math.max(0, total - abono);
       document.getElementById('textSaldoDeudor').textContent = `$${saldo}`;
+      verificarDeudorExistente();
+    }
+
+    function actualizarDatalistDeudores() {
+      const dl = document.getElementById('datalistDeudores');
+      const chips = document.getElementById('chipsDeudoresFrecuentes');
+      if (!dl) return;
+
+      const mapaSaldos = {};
+      cuentasPorCobrar.forEach(c => {
+        if (!c.deudor) return;
+        const nombre = c.deudor.trim();
+        mapaSaldos[nombre] = (mapaSaldos[nombre] || 0) + Number(c.saldo || 0);
+      });
+
+      const nombres = Object.keys(mapaSaldos);
+
+      dl.innerHTML = nombres.map(nom => `
+        <option value="${nom}">Saldo actual: $${mapaSaldos[nom]}</option>
+      `).join('');
+
+      if (chips) {
+        if (nombres.length === 0) {
+          chips.innerHTML = `<span style="font-size:0.75rem; color:#9F1239;">💡 Escribe el nombre o apodo del compañero. Se guardará para futuras ocasiones.</span>`;
+        } else {
+          chips.innerHTML = `
+            <span style="font-size:0.75rem; font-weight:800; color:#9F1239; width:100%; display:block; margin-bottom:2px;">
+              ⚡ Cuentas abiertas (toca para autocompletar):
+            </span>
+            ${nombres.slice(0, 6).map(nom => `
+              <button type="button" class="btn-cancel" style="min-height:28px; padding:2px 8px; font-size:0.76rem; border-color:#FDA4AF; background:#FFFFFF; color:#9F1239; font-weight:800; border-radius:9999px; cursor:pointer;" onclick="seleccionarDeudorChip('${nom.replace(/'/g, "\\'")}')">
+                👤 ${nom} ($${mapaSaldos[nom]})
+              </button>
+            `).join('')}
+          `;
+        }
+      }
+
+      verificarDeudorExistente();
+    }
+
+    function seleccionarDeudorChip(nombre) {
+      const inp = document.getElementById('inputDeudorNombre');
+      if (inp) {
+        inp.value = nombre;
+        verificarDeudorExistente();
+      }
+    }
+
+    function verificarDeudorExistente() {
+      const inp = document.getElementById('inputDeudorNombre');
+      const aviso = document.getElementById('avisoSaldoExistente');
+      if (!inp || !aviso) return;
+
+      const texto = inp.value.trim().toLowerCase();
+      if (!texto) {
+        aviso.classList.add('hidden');
+        return;
+      }
+
+      const encontrados = cuentasPorCobrar.filter(c => c.deudor && c.deudor.toLowerCase().includes(texto));
+      if (encontrados.length > 0) {
+        const nombreExacto = encontrados[0].deudor;
+        const saldoPrevio = cuentasPorCobrar
+          .filter(c => c.deudor.toLowerCase() === nombreExacto.toLowerCase())
+          .reduce((sum, c) => sum + Number(c.saldo || 0), 0);
+
+        const totalVentaActual = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+        const abonoActual = Number(document.getElementById('inputDeudorAbono').value) || 0;
+        const saldoVentaActual = Math.max(0, totalVentaActual - abonoActual);
+        const nuevoTotal = saldoPrevio + saldoVentaActual;
+
+        aviso.innerHTML = `
+          ⚠️ <strong>${nombreExacto}</strong> ya tiene cuenta abierta con saldo de <strong>$${saldoPrevio}.00</strong>.<br>
+          Con este pedido (${saldoVentaActual > 0 ? `restan $${saldoVentaActual}.00` : 'abono cubre hoy'}), su nuevo saldo acumulado será: <strong style="color:#B45309; font-size:0.88rem;">$${nuevoTotal}.00</strong>.
+        `;
+        aviso.classList.remove('hidden');
+      } else {
+        aviso.classList.add('hidden');
+      }
     }
 
     // =========================================================================
@@ -1599,9 +1695,25 @@
     // =========================================================================
     // CONTROL DE DEUDORES (CUENTAS POR COBRAR / FIADO)
     // =========================================================================
+    let busquedaDeudores = '';
+
     function abrirModalDeudores() {
+      const inp = document.getElementById('searchDeudoresInput');
+      if (inp) inp.value = '';
+      busquedaDeudores = '';
+      renderizarListaDeudores();
+      document.getElementById('modalDeudores').classList.remove('hidden');
+    }
+
+    function filtrarListaDeudores() {
+      const inp = document.getElementById('searchDeudoresInput');
+      busquedaDeudores = inp ? inp.value.trim().toLowerCase() : '';
+      renderizarListaDeudores();
+    }
+
+    function renderizarListaDeudores() {
       const container = document.getElementById('listaDeudores');
-      const totalDeuda = cuentasPorCobrar.reduce((sum, c) => sum + c.saldo, 0);
+      const totalDeuda = cuentasPorCobrar.reduce((sum, c) => sum + Number(c.saldo || 0), 0);
       document.getElementById('deudaGlobalTotal').textContent = `$${totalDeuda}`;
 
       // Configurar enlace de WhatsApp para Reporte de Fiados
@@ -1621,40 +1733,51 @@
       }
       document.getElementById('btnWhatsAppDeudores').href = `https://api.whatsapp.com/send?text=${encodeURI(msgFiados)}`;
 
+      const filtradas = cuentasPorCobrar.filter(d => {
+        if (!busquedaDeudores) return true;
+        const texto = `${d.deudor || ''} ${d.folio || ''} ${d.resumen || ''}`.toLowerCase();
+        return texto.includes(busquedaDeudores);
+      });
+
       if (cuentasPorCobrar.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">
           🎉 ¡Nadie te debe nada! Cuentas al corriente.
         </div>`;
+      } else if (filtradas.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">
+          No se encontraron compañeros que coincidan con "${busquedaDeudores}". 🔍
+        </div>`;
       } else {
-        container.innerHTML = cuentasPorCobrar.map((d, idx) => `
-          <div class="debt-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <strong style="color:var(--text-main); font-size:1rem;">👤 ${d.deudor}</strong>
-              <span class="ticket-badge-folio">${d.folio}</span>
+        container.innerHTML = filtradas.map((d) => {
+          const idxReal = cuentasPorCobrar.findIndex(x => (x.idVenta && x.idVenta === d.idVenta) || x.folio === d.folio);
+          return `
+            <div class="debt-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text-main); font-size:1rem;">👤 ${d.deudor}</strong>
+                <span class="ticket-badge-folio">${d.folio}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--text-secondary); margin-bottom:4px;">
+                <span>Total Pedido: $${d.total} (Abonó $${d.abono})</span>
+                <strong style="color:#E11D48; font-size:1.05rem;">Debe: $${d.saldo}</strong>
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">
+                ${d.resumen} • <span style="font-size:0.72rem;">${d.fecha} ${d.hora}</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem;" onclick="registrarAbonoPrompt(${idxReal}, false)">
+                  💵 Abonar $
+                </button>
+                <button class="btn-confirm" style="min-height:34px; padding:2px 8px; font-size:0.8rem; background:#16A34A;" onclick="registrarAbonoPrompt(${idxReal}, true)">
+                  ✅ Liquidar Todo ($${d.saldo})
+                </button>
+                <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem; color:#0284C7; border-color:#BAE6FD;" onclick="compartirRecordatorioDeuda(${idxReal})" title="Enviar estado de cuenta al compañero">
+                  🧾 WhatsApp
+                </button>
+              </div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--text-secondary); margin-bottom:4px;">
-              <span>Total Pedido: $${d.total} (Abonó $${d.abono})</span>
-              <strong style="color:#E11D48; font-size:1.05rem;">Debe: $${d.saldo}</strong>
-            </div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">
-              ${d.resumen} • <span style="font-size:0.72rem;">${d.fecha} ${d.hora}</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem;" onclick="registrarAbonoPrompt(${idx}, false)">
-                💵 Abonar $
-              </button>
-              <button class="btn-confirm" style="min-height:34px; padding:2px 8px; font-size:0.8rem; background:#16A34A;" onclick="registrarAbonoPrompt(${idx}, true)">
-                ✅ Liquidar Todo ($${d.saldo})
-              </button>
-              <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem; color:#0284C7; border-color:#BAE6FD;" onclick="compartirRecordatorioDeuda(${idx})" title="Enviar estado de cuenta al compañero">
-                🧾 WhatsApp
-              </button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
-
-      document.getElementById('modalDeudores').classList.remove('hidden');
     }
 
     function registrarAbonoPrompt(idx, liquidarCompleto) {
@@ -2123,6 +2246,30 @@
           }
           const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           if (textEl) textEl.textContent = `🟢 En vivo (${hora})`;
+        }
+
+        // Sincronizar Cuentas por Cobrar (Deudores) desde la hoja de cálculo
+        try {
+          const resCuentas = await fetch(`${APPS_SCRIPT_URL}?action=getCuentasPorCobrar`);
+          const dataCuentas = await resCuentas.json();
+          const listaRemota = dataCuentas.cuentas || dataCuentas.deudas;
+          if (dataCuentas.ok && Array.isArray(listaRemota) && listaRemota.length > 0) {
+            cuentasPorCobrar = listaRemota.map(r => ({
+              idVenta: r.idVenta || ('VEN-' + (r.folio || Date.now())),
+              folio: r.folio || '#PD',
+              deudor: r.deudor || r.cliente || 'Compañero',
+              total: Number(r.total) || (Number(r.abonado || 0) + Number(r.saldo || 0)),
+              abono: Number(r.abonado || 0),
+              saldo: Number(r.saldo || 0),
+              resumen: r.detalle || r.resumen || 'Paletas',
+              fecha: r.fecha || '',
+              hora: r.hora || ''
+            }));
+            localStorage.setItem('pd_cuentas_cobrar', JSON.stringify(cuentasPorCobrar));
+            actualizarBadgesHeader();
+          }
+        } catch (errCuentas) {
+          // Si falla conexión temporal, se mantiene copia en localStorage
         }
       } catch (err) {
         if (!silencioso && textEl) textEl.textContent = '🟡 Modo Local';
