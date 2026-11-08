@@ -185,7 +185,7 @@
       font-size: 0.88rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .quick-add-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 8px; }
+    .quick-add-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
     .btn-add-batch {
       min-height: 48px; border-radius: 12px; border: 2px solid #86EFAC; background: #DCFCE7;
       color: #14532D; font-family: inherit; font-size: 1.15rem; font-weight: 900; cursor: pointer;
@@ -890,12 +890,9 @@
               <span style="font-size:0.75rem;opacity:0.8;">Toca para elegir</span>
             </div>
 
-            <!-- Botones versátiles (+1, +2, +3, +4, +5, +10) -->
+            <!-- Botones versátiles (+1, +5, +10) -->
             <div class="quick-add-grid">
               <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 1)" title="Sumar 1 paleta">+1</button>
-              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 2)" title="Sumar 2 paletas">+2</button>
-              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 3)" title="Sumar 3 paletas">+3</button>
-              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 4)" title="Sumar 4 paletas">+4</button>
               <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 5)" title="Sumar 5 paletas">+5</button>
               <button class="btn-add-batch highlight" onclick="pedirConfirmacion('${item.id}', 10)" title="Sumar molde de 10">+10</button>
             </div>
