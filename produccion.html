@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌸 Paletería Punto Dulce - Producción de Mamá</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #FFF7FA;
+      --bg-blush: #FFEBF2;
+      --surface-card: #FFFFFF;
+      --surface-soft: #FFF0F6;
+      --pink-primary: #E11D74;
+      --pink-primary-hover: #BE125D;
+      --pink-light: #FCE7F3;
+      --pink-border: #F9A8D4;
+      --text-main: #3B0A26;
+      --text-secondary: #6E2B4E;
+      --text-muted: #9D5377;
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 26px;
+      --radius-pill: 9999px;
+      --shadow-card: 0 8px 24px -4px rgba(225, 29, 116, 0.10), 0 2px 6px -1px rgba(59, 10, 38, 0.05);
+      --shadow-floating: 0 14px 32px -4px rgba(190, 18, 93, 0.22);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-cream);
+      background-image: radial-gradient(circle at 10% 10%, #FFE4EE 0%, transparent 45%),
+                        radial-gradient(circle at 90% 85%, #FCE7F3 0%, transparent 50%);
+      color: var(--text-main);
+      font-size: 17px;
+      line-height: 1.4;
+      padding-bottom: 110px;
+    }
+    .app-shell { max-width: 520px; margin: 0 auto; padding: 14px; }
+    .top-header {
+      background: linear-gradient(135deg, #FFDBE9 0%, #FFEAF2 55%, #FFF5F8 100%);
+      border: 2px solid var(--pink-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 14px;
+    }
+    .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .brand-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFFFFF;
+      color: var(--pink-primary); font-weight: 900; font-size: 0.9rem; padding: 5px 12px;
+      border-radius: var(--radius-pill); border: 1.5px solid var(--pink-border);
+    }
+    .sync-pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800;
+      padding: 5px 10px; border-radius: var(--radius-pill); background: #FFFFFF; color: var(--text-secondary);
+      border: 1.5px solid #FBCFE8; cursor: pointer;
+    }
+    .sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #10B981; }
+    .header-title { font-size: 1.5rem; font-weight: 900; color: var(--text-main); line-height: 1.15; }
+    .header-subtitle { font-size: 0.95rem; color: var(--text-secondary); font-weight: 700; margin-top: 3px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .summary-box { background: #FFFFFF; border: 1.5px solid #FBCFE8; border-radius: var(--radius-sm); padding: 8px 6px; text-align: center; }
+    .summary-box.alert-box { background: #FFF1F2; border-color: #FDA4AF; }
+    .summary-number { font-size: 1.45rem; font-weight: 900; color: var(--pink-primary); line-height: 1.1; }
+    .summary-box.alert-box .summary-number { color: #E11D48; }
+    .summary-label { font-size: 0.8rem; font-weight: 800; color: var(--text-secondary); margin-top: 2px; }
+
+    .urgent-panel {
+      background: #FFF1F2; border: 2.5px solid #FB7185; border-radius: var(--radius-md);
+      padding: 12px 14px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08);
+    }
+    .urgent-title { font-size: 1.05rem; font-weight: 900; color: #881337; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .urgent-list { display: flex; flex-direction: column; gap: 6px; }
+    .urgent-item {
+      background: #FFFFFF; border: 1.5px solid #FECDD3; border-radius: 12px;
+      padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .urgent-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 900; }
+    .urgent-badge.agotado { background: #FFE4E6; color: #BE123C; }
+    .urgent-badge.pocas { background: #FEF3C7; color: #92400E; }
+    .btn-quick-restock {
+      background: var(--pink-primary); color: #FFFFFF; border: none; border-radius: 10px;
+      padding: 8px 12px; font-family: inherit; font-size: 0.88rem; font-weight: 900; cursor: pointer;
+    }
+
+    .action-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-primary-large {
+      flex: 1; min-height: 52px; background: linear-gradient(135deg, #E11D74 0%, #DB2777 100%);
+      color: #FFFFFF; border: none; border-radius: var(--radius-md); font-family: inherit;
+      font-size: 1.05rem; font-weight: 900; display: flex; align-items: center; justify-content: center;
+      gap: 6px; cursor: pointer; box-shadow: 0 4px 14px rgba(225, 29, 116, 0.25);
+    }
+    .btn-secondary-large {
+      min-height: 52px; background: #FFFFFF; color: var(--pink-primary);
+      border: 2px solid var(--pink-border); border-radius: var(--radius-md);
+      font-family: inherit; font-size: 0.95rem; font-weight: 900; padding: 0 14px; cursor: pointer;
+    }
+
+    .search-box-wrap { position: relative; margin-bottom: 10px; }
+    .search-input-large {
+      width: 100%; min-height: 50px; border-radius: var(--radius-md); border: 2px solid var(--pink-border);
+      background: #FFFFFF; padding: 10px 14px 10px 42px; font-family: inherit; font-size: 1.02rem;
+      font-weight: 700; color: var(--text-main); outline: none;
+    }
+    .search-input-large:focus { border-color: var(--pink-primary); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none; }
+
+    .category-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
+    .cat-tab {
+      min-height: 44px; padding: 8px 16px; border-radius: var(--radius-pill); border: 2px solid var(--pink-border);
+      background: #FFFFFF; color: var(--text-secondary); font-family: inherit; font-size: 0.95rem;
+      font-weight: 800; cursor: pointer; white-space: nowrap;
+    }
+    .cat-tab.active { background: var(--pink-primary); border-color: var(--pink-primary); color: #FFFFFF; }
+    .cat-tab.alert-tab { border-color: #FDA4AF; color: #9F1239; background: #FFF1F2; }
+    .cat-tab.alert-tab.active { background: #E11D48; border-color: #BE123C; color: #FFFFFF; }
+
+    .flavor-list { display: flex; flex-direction: column; gap: 14px; }
+    .flavor-card {
+      background: var(--surface-card); border: 2.5px solid #FBCFE8; border-radius: var(--radius-lg);
+      padding: 14px; box-shadow: var(--shadow-card);
+    }
+    .flavor-card.status-agotado { border-color: #FDA4AF; background: linear-gradient(180deg, #FFF5F6 0%, #FFFFFF 40%); }
+    .flavor-card.status-pocas { border-color: #FCD34D; background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 40%); }
+
+    .flavor-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .flavor-identity { display: flex; align-items: center; gap: 10px; }
+    .flavor-emoji-circle {
+      width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.85rem; background: var(--bg-blush); border: 2px solid #F9A8D4; flex-shrink: 0;
+    }
+    .flavor-name { font-size: 1.28rem; font-weight: 900; color: var(--text-main); line-height: 1.15; }
+    .flavor-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .badge-category { font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: var(--radius-pill); background: #FCE7F3; color: #9D174D; }
+    .badge-price { font-size: 0.88rem; font-weight: 900; padding: 2px 8px; border-radius: var(--radius-pill); background: #F3E8FF; color: #6B21A8; }
+
+    /* 📦 BANNER GIGANTE DE STOCK (IMPOSIBLE DE NO VER) */
+    .flavor-stock-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-radius: 14px; margin-bottom: 12px;
+      border: 2px solid #86EFAC; background: #DCFCE7; color: #14532D;
+      font-weight: 900; font-size: 1.02rem;
+    }
+    .flavor-stock-banner.agotado { background: #FFE4E6; border-color: #FDA4AF; color: #9F1239; }
+    .flavor-stock-banner.pocas { background: #FEF3C7; border-color: #FCD34D; color: #92400E; }
+    .flavor-stock-banner .stock-big-badge { font-size: 1.35rem; font-weight: 900; }
+
+    .restock-section-label {
+      font-size: 0.88rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .quick-add-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 8px; }
+    .btn-add-batch {
+      min-height: 48px; border-radius: 12px; border: 2px solid #86EFAC; background: #DCFCE7;
+      color: #14532D; font-family: inherit; font-size: 1.15rem; font-weight: 900; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-add-batch.highlight { background: #16A34A; border-color: #15803D; color: #FFFFFF; }
+    .btn-add-batch:active { transform: scale(0.93); }
+
+    .custom-inline-restock {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+      background: #FDF2F8; padding: 5px 8px; border-radius: 12px; border: 1.5px solid #FBCFE8;
+    }
+    .custom-inline-input {
+      width: 65px; min-height: 38px; border-radius: 10px; border: 2px solid var(--pink-border);
+      background: #FFFFFF; text-align: center; font-family: inherit; font-size: 1.05rem;
+      font-weight: 900; color: var(--text-main); outline: none;
+    }
+    .btn-inline-sumar {
+      flex: 1; min-height: 38px; border-radius: 10px; border: none; background: #16A34A;
+      color: #FFFFFF; font-family: inherit; font-size: 0.92rem; font-weight: 900; cursor: pointer;
+    }
+
+    .card-secondary-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 8px;
+      border-top: 1.5px dashed #FBCFE8;
+    }
+    .btn-card-action {
+      min-height: 40px; border-radius: 10px; border: 1.5px solid #F9A8D4; background: #FFF5F9;
+      color: var(--text-secondary); font-family: inherit; font-size: 0.86rem; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .btn-card-action.merma { background: #FFF1F2; border-color: #FECDD3; color: #9F1239; }
+
+    /* BARRA DE PROGRESO DE META / STOCK MÁXIMO */
+    .target-progress-wrap {
+      margin: 8px 0 10px 0; background: #FFF7FA; border: 1.5px solid #FBCFE8;
+      border-radius: 12px; padding: 7px 10px;
+    }
+    .target-progress-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.88rem; font-weight: 800; margin-bottom: 5px; color: var(--text-secondary);
+    }
+    .target-progress-bar {
+      width: 100%; height: 10px; background: #FCE7F3; border-radius: var(--radius-pill);
+      overflow: hidden; border: 1px solid #F9A8D4;
+    }
+    .target-progress-fill {
+      height: 100%; background: linear-gradient(90deg, #E11D74 0%, #F43F5E 100%);
+      border-radius: var(--radius-pill); transition: width 0.3s ease;
+    }
+    .target-progress-fill.completa {
+      background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    }
+    .target-progress-fill.exceso {
+      background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%);
+    }
+    .target-progress-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; font-weight: 800; margin-top: 4px;
+    }
+    .btn-target-complete {
+      width: 100%; min-height: 48px;
+      background: linear-gradient(135deg, #FFF1F7 0%, #FFE4EF 100%);
+      border: 2px solid var(--pink-primary); border-radius: 12px;
+      color: var(--pink-primary); font-family: inherit; font-size: 1rem;
+      font-weight: 900; padding: 8px 12px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-bottom: 10px; box-shadow: 0 3px 10px rgba(225, 29, 116, 0.12);
+      transition: all 0.15s ease;
+    }
+    .btn-target-complete:active { transform: scale(0.98); background: var(--pink-primary); color: #FFFFFF; }
+    .target-achieved-badge {
+      width: 100%; min-height: 42px; background: #ECFDF5; border: 2px solid #6EE7B7;
+      border-radius: 12px; color: #065F46; font-size: 0.92rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* MODAL DE CONFIRMACIÓN DE PRODUCCIÓN */
+    .confirm-comparison-box {
+      display: flex; align-items: center; justify-content: space-around;
+      background: #FFF5F9; border: 2px solid #FBCFE8; border-radius: 16px;
+      padding: 14px; margin: 12px 0;
+    }
+    .confirm-stat { text-align: center; }
+    .confirm-stat .label { display: block; font-size: 0.85rem; font-weight: 800; color: var(--text-muted); }
+    .confirm-stat .val { font-size: 1.4rem; font-weight: 900; color: var(--text-main); }
+    .confirm-stat.highlight .val { color: #16A34A; }
+    .confirm-arrow { font-size: 1.5rem; }
+    .confirm-new-total {
+      text-align: center; font-size: 1.15rem; font-weight: 800;
+      background: #DCFCE7; border: 2px solid #86EFAC; color: #14532D;
+      padding: 10px; border-radius: 12px; margin-bottom: 12px;
+    }
+    .btn-loading { opacity: 0.65 !important; cursor: not-allowed !important; pointer-events: none !important; background: #9CA3AF !important; }
+
+    .undo-floating-bar {
+      position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 24px); max-width: 490px; background: #3B0A26; color: #FFFFFF;
+      border: 2px solid #F472B6; border-radius: var(--radius-md); padding: 12px 14px;
+      box-shadow: var(--shadow-floating); display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; z-index: 1000; animation: popUp 0.2s ease-out;
+    }
+    @keyframes popUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .undo-info { font-size: 0.92rem; font-weight: 800; }
+    .undo-info strong { color: #F9A8D4; display: block; font-size: 1rem; }
+    .btn-undo-now {
+      background: #F43F5E; color: #FFFFFF; border: 2px solid #FFE4E6; border-radius: 12px;
+      padding: 10px 14px; font-family: inherit; font-size: 0.95rem; font-weight: 900; cursor: pointer;
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(59, 10, 38, 0.55); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center; padding: 14px; z-index: 2000;
+    }
+    .modal-card {
+      background: #FFFFFF; border: 3px solid var(--pink-border); border-radius: var(--radius-lg);
+      width: 100%; max-width: 440px; max-height: 88vh; overflow-y: auto; padding: 18px 16px;
+    }
+    .modal-title { font-size: 1.35rem; font-weight: 900; color: var(--text-main); margin-bottom: 4px; }
+    .modal-subtitle { font-size: 0.92rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 14px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 0.95rem; font-weight: 900; color: var(--text-main); margin-bottom: 5px; }
+    .form-input, .form-select {
+      width: 100%; min-height: 50px; border-radius: 12px; border: 2px solid var(--pink-border);
+      background: #FFF9FC; padding: 10px 12px; font-family: inherit; font-size: 1.05rem;
+      font-weight: 800; color: var(--text-main);
+    }
+    .emoji-picker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .emoji-option {
+      height: 44px; border-radius: 10px; border: 2px solid #FBCFE8; background: #FFF5F9;
+      font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .emoji-option.selected { border-color: var(--pink-primary); background: #FCE7F3; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .btn-cancel {
+      flex: 1; min-height: 50px; border-radius: 12px; border: 2px solid #FBCFE8;
+      background: #FFFFFF; color: var(--text-secondary); font-family: inherit; font-size: 0.95rem;
+      font-weight: 900; cursor: pointer;
+    }
+    .btn-confirm {
+      flex: 1.4; min-height: 50px; border-radius: 12px; border: none; background: var(--pink-primary);
+      color: #FFFFFF; font-family: inherit; font-size: 1.02rem; font-weight: 900; cursor: pointer;
+    }
+
+    .history-section {
+      margin-top: 24px; background: #FFFFFF; border: 2px solid #FBCFE8; border-radius: var(--radius-lg);
+      padding: 16px 14px;
+    }
+    .history-title { font-size: 1.12rem; font-weight: 900; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-row {
+      display: flex; align-items: center; justify-content: space-between; padding: 8px 10px;
+      background: var(--surface-soft); border-radius: 10px; font-size: 0.9rem; font-weight: 700;
+    }
+    .history-delta.plus { color: #15803D; font-weight: 900; }
+    .history-delta.minus { color: #BE123C; font-weight: 900; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    
+    <!-- CABECERA -->
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="brand-badge">
+          <span>🍧</span>
+          <span>Paletería Punto Dulce</span>
+        </div>
+        <div class="sync-pill" onclick="abrirModalConfig()">
+          <span class="sync-dot"></span>
+          <span id="syncStatusText">🟢 En vivo (Demo)</span>
+          <span>⚙️</span>
+        </div>
+      </div>
+
+      <h1 class="header-title">🌸 Producción y Re-stock</h1>
+      <p class="header-subtitle">Panel de Mamá • Stock en vivo y confirmación segura</p>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1.5px dashed var(--pink-border);">
+        <span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">📱 Cambiar interfaz:</span>
+        <a href="preview_ventas.html" style="background:#E11D74; color:#FFFFFF; text-decoration:none; padding:5px 12px; border-radius:9999px; font-size:0.82rem; font-weight:900; box-shadow:0 3px 8px rgba(225,29,116,0.25);">🛍️ Ir a Punto de Venta ➔</a>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <div class="summary-number" id="totalPaletasCount">0</div>
+          <div class="summary-label">Paletas Listas</div>
+        </div>
+        <div class="summary-box alert-box">
+          <div class="summary-number" id="pocasCount">0</div>
+          <div class="summary-label">Por Agotarse</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-number" id="totalSaboresCount">0</div>
+          <div class="summary-label">Sabores</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ALERTA RESUMIDA DE QUEDAN POCAS -->
+    <section class="urgent-panel" id="urgentPanel">
+      <div class="urgent-title">
+        <span>🚨</span>
+        <span>¡Atención Mamá! Necesitan producción:</span>
+      </div>
+      <div class="urgent-list" id="urgentList"></div>
+    </section>
+
+    <!-- BARRA ACCIONES -->
+    <div class="action-toolbar">
+      <button class="btn-primary-large" onclick="abrirModalNuevoSabor()">
+        <span>✨</span>
+        <span>+ Agregar Nuevo Sabor</span>
+      </button>
+      <button class="btn-secondary-large" onclick="reiniciarStockCero()">
+        <span>🔄</span>
+        <span>Limpiar (0)</span>
+      </button>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="search-box-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input-large" placeholder="Buscar sabor (ej. Fresa, Oreo)..." oninput="filtrarSabores()">
+    </div>
+
+    <!-- PESTAÑAS -->
+    <div class="category-tabs">
+      <button class="cat-tab active" data-cat="Todas" onclick="seleccionarCat(this)">🍧 Todos</button>
+      <button class="cat-tab alert-tab" data-cat="Faltantes" onclick="seleccionarCat(this)">🎯 Por Producir (Faltantes)</button>
+      <button class="cat-tab" data-cat="Agua" onclick="seleccionarCat(this)">💧 De Agua</button>
+      <button class="cat-tab" data-cat="Leche" onclick="seleccionarCat(this)">🥛 De Leche</button>
+    </div>
+
+    <!-- LISTA DE SABORES -->
+    <main class="flavor-list" id="flavorList"></main>
+
+    <!-- HISTORIAL -->
+    <section class="history-section">
+      <h2 class="history-title">
+        <span>📋</span>
+        <span>Últimos movimientos de hoy</span>
+      </h2>
+      <div class="history-list" id="historyList"></div>
+    </section>
+
+  </div>
+
+  <!-- BARRA FLOTANTE DE DESHACER -->
+  <div class="undo-floating-bar hidden" id="undoFloatingBar">
+    <div class="undo-info" id="undoText"></div>
+    <button class="btn-undo-now" onclick="deshacerUltimo()">
+      <span>↩️</span>
+      <span>Deshacer</span>
+    </button>
+  </div>
+
+  <!-- MODAL: CONFIRMAR PRODUCCIÓN (PREVIENE TOQUES ACCIDENTALES Y DOBLE CLIC) -->
+  <div class="modal-backdrop hidden" id="modalConfirmarProduccion">
+    <div class="modal-card">
+      <div style="text-align: center; margin-bottom: 12px;">
+        <span style="font-size: 3.5rem; display: block;" id="confirmEmoji">🍓</span>
+        <h3 class="modal-title" id="confirmSaborNombre">Fresa Cremosa</h3>
+        <p class="modal-subtitle">¿Confirmas que deseas registrar esta producción?</p>
+      </div>
+
+      <div class="confirm-comparison-box">
+        <div class="confirm-stat">
+          <span class="label">Stock Actual:</span>
+          <span class="val" id="confirmStockActual">0 paletas</span>
+        </div>
+        <div class="confirm-arrow">➡️</div>
+        <div class="confirm-stat highlight">
+          <span class="label">Vas a Sumar:</span>
+          <span class="val" id="confirmDelta">+3 paletas</span>
+        </div>
+      </div>
+
+      <div class="confirm-new-total">
+        Nuevo total en congelador: <strong id="confirmNuevoTotal">3 paletas</strong>
+      </div>
+
+      <div style="text-align: center; font-size: 0.92rem; font-weight: 800; color: var(--pink-primary); margin: -4px 0 14px 0;" id="confirmTargetNote">
+        🎯 Meta del congelador: 20 paletas
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">❌ No, cancelar</button>
+        <button class="btn-confirm" id="btnAceptarConfirm" onclick="ejecutarConfirmacionProduccion()">
+          <span id="btnAceptarText">✅ Sí, Guardar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR SABOR -->
+  <div class="modal-backdrop hidden" id="modalNuevoSabor">
+    <div class="modal-card">
+      <h3 class="modal-title">✨ Agregar Nuevo Sabor</h3>
+      <p class="modal-subtitle">Se creará en la hoja central y estará disponible de inmediato.</p>
+
+      <div class="form-group">
+        <label class="form-label">Nombre del Sabor:</label>
+        <input type="text" id="nuevoNombre" class="form-input" placeholder="Ej. Pistache con Nuez">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Categoría:</label>
+        <select id="nuevoCat" class="form-select">
+          <option value="Agua">💧 De Agua / Fruta</option>
+          <option value="Leche" selected>🥛 De Leche / Crema</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div>
+          <label class="form-label">Precio ($):</label>
+          <input type="number" id="nuevoPrecio" class="form-input" value="15">
+        </div>
+        <div>
+          <label class="form-label">¿Cuántas hiciste?:</label>
+          <input type="number" id="nuevoStock" class="form-input" value="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Elige Icono:</label>
+        <input type="hidden" id="nuevoEmoji" value="🍓">
+        <div class="emoji-picker-grid">
+          <button type="button" class="emoji-option selected" onclick="pickEmoji(this)">🍓</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🥭</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍋</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍫</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍪</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🥥</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🫐</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍦</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍉</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍍</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🥜</button>
+          <button type="button" class="emoji-option" onclick="pickEmoji(this)">🍭</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">Cancelar</button>
+        <button class="btn-confirm" onclick="guardarSabor()">Guardar Sabor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MERMA -->
+  <div class="modal-backdrop hidden" id="modalMerma">
+    <div class="modal-card">
+      <h3 class="modal-title">💔 Registrar Paleta Dañada o Merma</h3>
+      <p class="modal-subtitle" id="mermaNombre">Sabor</p>
+      <input type="hidden" id="mermaId">
+      <div class="form-group">
+        <label class="form-label">¿Cuántas se dañaron o descartaron?:</label>
+        <input type="number" id="mermaCant" class="form-input" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo:</label>
+        <select id="mermaMotivo" class="form-select">
+          <option value="Se rompió al desmoldar">Se rompió al desmoldar</option>
+          <option value="Problema de frío">Problema de congelación / descongeló</option>
+          <option value="Defecto de consistencia">Defecto de consistencia</option>
+          <option value="Degustación">Degustación / prueba de calidad</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">Cancelar</button>
+        <button class="btn-confirm" style="background:#E11D48;" onclick="confirmarMerma()">Descontar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR PRECIO -->
+  <div class="modal-backdrop hidden" id="modalEditar">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Editar Sabor y Precio</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label class="form-label">Nombre del Sabor:</label>
+        <input type="text" id="editNombre" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Precio ($):</label>
+        <input type="number" id="editPrecio" class="form-input">
+      </div>
+      <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div>
+          <label class="form-label">Alerta mín.:</label>
+          <input type="number" id="editMin" class="form-input">
+        </div>
+        <div>
+          <label class="form-label">Meta Congelador:</label>
+          <input type="number" id="editMax" class="form-input">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">Cancelar</button>
+        <button class="btn-confirm" onclick="guardarEdicion()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONEXIÓN GOOGLE SHEETS -->
+  <div class="modal-backdrop hidden" id="modalPreviewConfig">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Tu Hoja de Google Sheets</h3>
+      <p class="modal-subtitle">¡La hoja central ya está creada en tu Google Drive!</p>
+
+      <div style="background: #FFF1F6; border: 2px solid #FBCFE8; border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+        <div style="font-weight: 800; color: var(--pink-primary); font-size: 0.95rem; margin-bottom: 6px;">📊 Acceso directo a tu archivo:</div>
+        <a href="https://docs.google.com/spreadsheets/d/1WDA_i76wUv63sJ5NEBb3MfYZc4sM0UouSsWn22kd_f0/edit" target="_blank" style="display: block; background: var(--pink-primary); color: #FFFFFF; text-align: center; padding: 10px 14px; border-radius: 12px; font-weight: 900; text-decoration: none; font-size: 0.95rem; box-shadow: 0 4px 10px rgba(225,29,116,0.25);">
+          Abrir "Paletería Punto Dulce" en Google Sheets ↗
+        </a>
+      </div>
+
+      <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.45;">
+        <p><strong>Pestañas incluidas:</strong></p>
+        <ul style="margin: 6px 0 10px 20px;">
+          <li><strong>Inventario:</strong> Los 24 sabores con sus precios reales ($15 y $18) y stock limpio en 0.</li>
+          <li><strong>Movimientos_Produccion:</strong> Registro de cada tanda con ID único anti-duplicados.</li>
+          <li><strong>Ventas:</strong> Registro de cada cobro en el Punto de Venta.</li>
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Entendido, volver a la App</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT BUNDLE -->
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFCoHM5pWYEam0ebz1lFtltAEanl8wR6AZvMgFHdI66kI4MRVhZi6gWv-XNdj49_A/exec';
+
+    let inventario = [
+      { id: 'SAB-01', sabor: 'Cacahuate', categoria: 'Leche', precio: 15, stock: 11, stockMinimo: 3, stockMaximo: 20, emoji: '🥜', color: '#FEF3C7' },
+      { id: 'SAB-02', sabor: 'Oreo', categoria: 'Leche', precio: 15, stock: 4, stockMinimo: 3, stockMaximo: 20, emoji: '🍪', color: '#F3E8FF' },
+      { id: 'SAB-03', sabor: 'Choco Milk', categoria: 'Leche', precio: 15, stock: 2, stockMinimo: 3, stockMaximo: 10, emoji: '🍫', color: '#FFEDD5' },
+      { id: 'SAB-04', sabor: 'Fresa Cremosa', categoria: 'Leche', precio: 15, stock: 0, stockMinimo: 3, stockMaximo: 15, emoji: '🍓', color: '#FFE4EE' },
+      { id: 'SAB-05', sabor: 'Vainilla', categoria: 'Leche', precio: 15, stock: 5, stockMinimo: 3, stockMaximo: 15, emoji: '🍦', color: '#FEF9C3' },
+      { id: 'SAB-06', sabor: 'Piña con Chamoy', categoria: 'Agua', precio: 15, stock: 4, stockMinimo: 3, stockMaximo: 15, emoji: '🍍', color: '#FEF08A' },
+      { id: 'SAB-07', sabor: 'Nance', categoria: 'Agua', precio: 15, stock: 10, stockMinimo: 3, stockMaximo: 15, emoji: '🍒', color: '#FDE68A' },
+      { id: 'SAB-08', sabor: 'Coco', categoria: 'Leche', precio: 15, stock: 16, stockMinimo: 3, stockMaximo: 20, emoji: '🥥', color: '#F5F5F4' },
+      { id: 'SAB-09', sabor: 'Elote', categoria: 'Leche', precio: 18, stock: 0, stockMinimo: 3, stockMaximo: 15, emoji: '🌽', color: '#FEF08A' },
+      { id: 'SAB-10', sabor: 'Fresas con Crema', categoria: 'Leche', precio: 18, stock: 0, stockMinimo: 3, stockMaximo: 20, emoji: '🍓', color: '#FCE7F3' },
+      { id: 'SAB-11', sabor: 'Mazapán', categoria: 'Leche', precio: 18, stock: 12, stockMinimo: 3, stockMaximo: 15, emoji: '🍬', color: '#FED7AA' },
+      { id: 'SAB-12', sabor: 'Pay de Limón', categoria: 'Leche', precio: 18, stock: 12, stockMinimo: 3, stockMaximo: 15, emoji: '🍋', color: '#ECFCCB' },
+      { id: 'SAB-13', sabor: 'Crema y Zarzamora', categoria: 'Leche', precio: 18, stock: 8, stockMinimo: 3, stockMaximo: 15, emoji: '🫐', color: '#EDE9FE' },
+      { id: 'SAB-14', sabor: 'Duvalín', categoria: 'Leche', precio: 18, stock: 11, stockMinimo: 3, stockMaximo: 15, emoji: '🍮', color: '#FFEDD5' },
+      { id: 'SAB-15', sabor: 'Capuchino Moka', categoria: 'Leche', precio: 18, stock: 13, stockMinimo: 3, stockMaximo: 15, emoji: '☕', color: '#E7E5E4' },
+      { id: 'SAB-16', sabor: 'Tiramisú', categoria: 'Leche', precio: 18, stock: 18, stockMinimo: 3, stockMaximo: 15, emoji: '🍰', color: '#F5EBE0' },
+      { id: 'SAB-17', sabor: 'Pulparindo', categoria: 'Agua', precio: 18, stock: 13, stockMinimo: 3, stockMaximo: 15, emoji: '🌶️', color: '#FEE2E2' },
+      { id: 'SAB-18', sabor: 'Pingüino', categoria: 'Leche', precio: 18, stock: 10, stockMinimo: 3, stockMaximo: 10, emoji: '🐧', color: '#E2E8F0' },
+      { id: 'SAB-19', sabor: 'Chocorrol', categoria: 'Leche', precio: 18, stock: 5, stockMinimo: 3, stockMaximo: 10, emoji: '🌀', color: '#FFEDD5' },
+      { id: 'SAB-20', sabor: 'Gansito', categoria: 'Leche', precio: 18, stock: 8, stockMinimo: 3, stockMaximo: 10, emoji: '🧁', color: '#FCE7F3' },
+      { id: 'SAB-21', sabor: 'Plátano con Nutella', categoria: 'Leche', precio: 18, stock: 4, stockMinimo: 3, stockMaximo: 10, emoji: '🍌', color: '#FEF9C3' },
+      { id: 'SAB-22', sabor: 'Chocolate Abuelita', categoria: 'Leche', precio: 18, stock: 13, stockMinimo: 3, stockMaximo: 10, emoji: '🍫', color: '#E2D9D2' },
+      { id: 'SAB-23', sabor: 'Chicle', categoria: 'Leche', precio: 18, stock: 7, emoji: '🫧', color: '#E0F2FE' },
+      { id: 'SAB-24', sabor: 'Guanábana', categoria: 'Leche', precio: 18, stock: 0, stockMinimo: 3, stockMaximo: 15, emoji: '🍈', color: '#F0FDF4' }
+    ];
+
+    let historial = [];
+    let categoriaActiva = 'Todas';
+    let busqueda = '';
+    let ultimoMovimiento = null;
+    let undoTimer = null;
+    let pendienteConfirmacion = null;
+    let guardando = false;
+
+    function renderizar() {
+      // 1. Resumen
+      const total = inventario.reduce((s, i) => s + (Number(i.stock) || 0), 0);
+      const porProducir = inventario.filter(i => (Number(i.stock) || 0) < (Number(i.stockMaximo) || 20)).length;
+      document.getElementById('totalPaletasCount').textContent = total;
+      document.getElementById('pocasCount').textContent = porProducir;
+      document.getElementById('totalSaboresCount').textContent = inventario.length;
+
+      // 2. Alertas
+      const urgentes = inventario.filter(i => (Number(i.stock) || 0) <= (Number(i.stockMinimo) || 3));
+      const panel = document.getElementById('urgentPanel');
+      const list = document.getElementById('urgentList');
+      if (urgentes.length === 0) {
+        panel.classList.add('hidden');
+      } else {
+        panel.classList.remove('hidden');
+        if (urgentes.length > 3) {
+          list.innerHTML = `
+            <div style="background: #FFFFFF; border: 1.5px solid #FECDD3; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div>
+                <div style="font-weight: 900; color: #881337; font-size: 0.95rem;">🚨 ${urgentes.length} sabores sin stock o por terminarse</div>
+                <div style="font-size: 0.8rem; color: #9F1239;">Toca para ver los que faltan y completar su meta</div>
+              </div>
+              <button class="btn-quick-restock" onclick="filtrarSoloAgotadas()">Ver faltantes</button>
+            </div>
+          `;
+        } else {
+          list.innerHTML = urgentes.map(item => {
+            const s = Number(item.stock) || 0;
+            const stockMax = Number(item.stockMaximo) || 20;
+            const faltan = Math.max(0, stockMax - s);
+            return `
+              <div class="urgent-item">
+                <div style="display:flex;align-items:center;gap:8px;font-weight:800;">
+                  <span style="font-size:1.4rem;">${item.emoji}</span>
+                  <div>
+                    <div>${item.sabor}</div>
+                    <span class="${s === 0 ? 'urgent-badge agotado' : 'urgent-badge pocas'}">
+                      ${s === 0 ? '¡AGOTADA!' : 'Quedan ' + s + ' (Meta: ' + stockMax + ')'}
+                    </span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;align-items:center;">
+                  <button class="btn-quick-restock" style="padding:6px 10px;" onclick="pedirConfirmacion('${item.id}', 1)">+1</button>
+                  <button class="btn-quick-restock" style="padding:6px 10px;" onclick="pedirConfirmacion('${item.id}', 5)">+5</button>
+                  ${faltan > 0 ? `<button class="btn-quick-restock" style="background:#BE125D;padding:6px 10px;" onclick="pedirConfirmacion('${item.id}', ${faltan})" title="Hacer las ${faltan} faltantes">+${faltan}</button>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 3. Sabores
+      const container = document.getElementById('flavorList');
+      const esModoFaltantes = categoriaActiva === 'Faltantes' || categoriaActiva === 'Urgentes';
+
+      let filtrados = inventario.filter(item => {
+        let catOk = true;
+        if (esModoFaltantes) {
+          catOk = (Number(item.stock) || 0) < (Number(item.stockMaximo) || 20);
+        } else if (categoriaActiva !== 'Todas') {
+          catOk = item.categoria === categoriaActiva;
+        }
+        const searchOk = !busqueda || item.sabor.toLowerCase().includes(busqueda);
+        return catOk && searchOk;
+      });
+
+      if (esModoFaltantes) {
+        filtrados.sort((a, b) => {
+          const stockA = Number(a.stock) || 0;
+          const stockB = Number(b.stock) || 0;
+          const minA = Number(a.stockMinimo) || 3;
+          const minB = Number(b.stockMinimo) || 3;
+          const maxA = Number(a.stockMaximo) || 20;
+          const maxB = Number(b.stockMaximo) || 20;
+
+          if (stockA === 0 && stockB !== 0) return -1;
+          if (stockB === 0 && stockA !== 0) return 1;
+          if (stockA <= minA && stockB > minB) return -1;
+          if (stockB <= minB && stockA > minA) return 1;
+          return (maxB - stockB) - (maxA - stockA);
+        });
+      }
+
+      container.innerHTML = filtrados.map(item => {
+        const s = Number(item.stock) || 0;
+        const min = Number(item.stockMinimo) || 3;
+        const max = Number(item.stockMaximo) || 20;
+        const faltan = Math.max(0, max - s);
+        const pct = Math.min(100, Math.round((s / max) * 100));
+        const metaCumplida = s >= max;
+
+        let bannerClass = '';
+        let bannerText = '✅ EN EXISTENCIA';
+
+        if (s === 0) {
+          bannerClass = 'agotado';
+          bannerText = '🚨 AGOTADO EN TIENDA';
+        } else if (s <= min) {
+          bannerClass = 'pocas';
+          bannerText = '⚠️ QUEDAN POCAS';
+        }
+
+        return `
+          <div class="flavor-card ${s === 0 ? 'status-agotado' : (s <= min ? 'status-pocas' : '')}">
+            <div class="flavor-card-top">
+              <div class="flavor-identity">
+                <div class="flavor-emoji-circle" style="background:${item.color}">${item.emoji}</div>
+                <div>
+                  <div class="flavor-name">${item.sabor}</div>
+                  <div class="flavor-meta">
+                    <span class="badge-category">${item.categoria}</span>
+                    <span class="badge-price">$${item.precio} c/u</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 📦 BANNER GIGANTE DE STOCK (IMPOSIBLE DE NO VER) -->
+            <div class="flavor-stock-banner ${bannerClass}">
+              <span>${bannerText}</span>
+              <span class="stock-big-badge">
+                <span style="font-size: 1.6rem; font-weight: 900;">${s}</span> paletas
+              </span>
+            </div>
+
+            <!-- 🎯 BARRA DE META DEL CONGELADOR / CAPACIDAD -->
+            <div class="target-progress-wrap">
+              <div class="target-progress-header">
+                <span>❄️ Capacidad / Meta: <strong>${max} paletas</strong></span>
+                <span style="color: ${s > max ? '#D97706' : (metaCumplida ? '#059669' : '#BE125D')}; font-weight: 900;">
+                  ${s > max ? `⚡ Exceso: +${s - max}` : (metaCumplida ? '🎉 ¡Meta cumplida!' : `🎯 Faltan ${faltan} paletas`)}
+                </span>
+              </div>
+              <div class="target-progress-bar">
+                <div class="target-progress-fill ${s > max ? 'exceso' : (metaCumplida ? 'completa' : '')}" style="width: ${pct}%;"></div>
+              </div>
+              <div class="target-progress-footer">
+                <span style="color: var(--text-muted);">Existencia: ${s} de ${max}</span>
+                <span style="font-weight: 900; color: ${s > max ? '#D97706' : 'var(--text-secondary)'};">
+                  ${s > max ? `¡${s - max} extras!` : `${pct}% lleno`}
+                </span>
+              </div>
+            </div>
+
+            <!-- 🎯 BOTÓN DE 1 TOQUE: COMPLETAR LA META DIRECTAMENTE -->
+            ${!metaCumplida ? `
+              <button class="btn-target-complete" onclick="pedirConfirmacion('${item.id}', ${faltan})">
+                <span>🎯</span>
+                <span>Completar meta: Hacer ${faltan} paletas (+${faltan})</span>
+              </button>
+            ` : (s > max ? `
+              <div class="target-achieved-badge" style="background: #FFFBEB; border-color: #F59E0B; color: #92400E;">
+                <span>⚡</span>
+                <span>Supera la meta por +${s - max} (${s} de ${max})</span>
+              </div>
+            ` : `
+              <div class="target-achieved-badge">
+                <span>✨</span>
+                <span>Congelador con meta cumplida (${s} / ${max})</span>
+              </div>
+            `)}
+
+            <div class="restock-section-label">
+              <span>🍓 <strong>Sumar por molde o lote:</strong></span>
+              <span style="font-size:0.75rem;opacity:0.8;">Toca para elegir</span>
+            </div>
+
+            <!-- Botones versátiles (+1, +2, +3, +4, +5, +10) -->
+            <div class="quick-add-grid">
+              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 1)" title="Sumar 1 paleta">+1</button>
+              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 2)" title="Sumar 2 paletas">+2</button>
+              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 3)" title="Sumar 3 paletas">+3</button>
+              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 4)" title="Sumar 4 paletas">+4</button>
+              <button class="btn-add-batch" onclick="pedirConfirmacion('${item.id}', 5)" title="Sumar 5 paletas">+5</button>
+              <button class="btn-add-batch highlight" onclick="pedirConfirmacion('${item.id}', 10)" title="Sumar molde de 10">+10</button>
+            </div>
+
+            <!-- Fila rápida para otra cantidad exacta o restar 1 -->
+            <div class="custom-inline-restock">
+              <button class="btn-card-action merma" style="min-height:36px;padding:3px 8px;" onclick="pedirConfirmacion('${item.id}', -1)" title="Restar 1 paleta">-1</button>
+              <span style="font-size:0.82rem;font-weight:800;color:var(--text-secondary);">Otra cant:</span>
+              <input type="number" id="input-custom-${item.id}" class="custom-inline-input" placeholder="Ej. 7" min="1">
+              <button class="btn-inline-sumar" onclick="pedirConfirmacionInline('${item.id}')">+ Sumar</button>
+            </div>
+
+            <div class="card-secondary-actions">
+              <button class="btn-card-action merma" onclick="abrirMerma('${item.id}')">💔 Dañada / Merma</button>
+              <button class="btn-card-action" onclick="abrirEditar('${item.id}')">⚙️ Editar Sabor / Precio</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 4. Historial
+      const histEl = document.getElementById('historyList');
+      if (historial.length === 0) {
+        histEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:8px;">Aún no hay movimientos registrados hoy</div>`;
+      } else {
+        histEl.innerHTML = historial.slice(0, 5).map(h => `
+          <div class="history-row">
+            <div>
+              <div style="font-weight:800;">${h.sabor}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">${h.motivo} • ${h.hora}</div>
+            </div>
+            <div class="${h.delta > 0 ? 'history-delta plus' : 'history-delta minus'}">
+              ${h.delta > 0 ? '+' + h.delta : h.delta} (Hay ${h.nuevo})
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Paso de confirmación previa
+    function pedirConfirmacion(id, delta) {
+      const item = inventario.find(i => i.id === id);
+      if (!item) return;
+
+      const deltaNum = Number(delta);
+      const stockActual = Number(item.stock) || 0;
+      const nuevoTotal = Math.max(0, stockActual + deltaNum);
+      const stockMax = Number(item.stockMaximo) || 20;
+
+      pendienteConfirmacion = { id, delta: deltaNum, stockActual, nuevoTotal, item };
+
+      document.getElementById('confirmEmoji').textContent = item.emoji;
+      document.getElementById('confirmSaborNombre').textContent = item.sabor;
+      document.getElementById('confirmStockActual').textContent = `${stockActual} paletas`;
+      
+      const deltaEl = document.getElementById('confirmDelta');
+      if (deltaNum > 0) {
+        deltaEl.textContent = `+${deltaNum} paletas`;
+        deltaEl.style.color = '#16A34A';
+      } else {
+        deltaEl.textContent = `${deltaNum} paleta`;
+        deltaEl.style.color = '#E11D48';
+      }
+
+      document.getElementById('confirmNuevoTotal').textContent = `${nuevoTotal} paletas`;
+
+      const targetNote = document.getElementById('confirmTargetNote');
+      const btn = document.getElementById('btnAceptarConfirm');
+      const btnTxt = document.getElementById('btnAceptarText');
+      btn.disabled = false;
+      btn.classList.remove('btn-loading');
+
+      if (targetNote) {
+        if (nuevoTotal > stockMax) {
+          const exceso = nuevoTotal - stockMax;
+          targetNote.innerHTML = `
+            <div style="background: #FFFBEB; border: 2px solid #F59E0B; border-radius: 12px; padding: 10px; color: #92400E; text-align: left; line-height: 1.35; margin-bottom: 4px;">
+              <div style="font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+                <span>⚠️</span> <span>¡Atención: Supera la meta del congelador!</span>
+              </div>
+              <div style="font-size: 0.85rem; margin-top: 4px;">
+                Capacidad meta: <strong>${stockMax} paletas</strong>.<br>
+                Con este lote habrá <strong>${nuevoTotal} paletas</strong> (+${exceso} paletas de exceso).
+              </div>
+            </div>
+          `;
+          btn.style.background = 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)';
+          btnTxt.textContent = `⚠️ Guardar de todos modos (+${deltaNum})`;
+        } else if (nuevoTotal === stockMax) {
+          targetNote.innerHTML = `🎉 ¡Con esto alcanzarás exactamente la meta del congelador (${stockMax}/${stockMax})!`;
+          targetNote.style.color = '#16A34A';
+          btn.style.background = '';
+          btnTxt.textContent = `✅ Sí, Guardar (+${deltaNum})`;
+        } else {
+          const restantes = stockMax - nuevoTotal;
+          targetNote.innerHTML = `🎯 Meta del congelador: ${stockMax} paletas (te faltarán ${restantes})`;
+          targetNote.style.color = 'var(--pink-primary)';
+          btn.style.background = '';
+          btnTxt.textContent = deltaNum > 0 ? `✅ Sí, Guardar (+${deltaNum})` : `✅ Sí, Restar (${deltaNum})`;
+        }
+      }
+
+      document.getElementById('modalConfirmarProduccion').classList.remove('hidden');
+    }
+
+    function pedirConfirmacionInline(id) {
+      const input = document.getElementById(`input-custom-${id}`);
+      if (!input) return;
+      const cant = Number(input.value) || 0;
+      if (cant > 0) {
+        pedirConfirmacion(id, cant);
+        input.value = '';
+      }
+    }
+
+    // Ejecución segura con anti-doble clic
+    function ejecutarConfirmacionProduccion() {
+      if (guardando || !pendienteConfirmacion) return;
+
+      guardando = true;
+      const btn = document.getElementById('btnAceptarConfirm');
+      const btnTxt = document.getElementById('btnAceptarText');
+      btn.disabled = true;
+      btn.classList.add('btn-loading');
+      btnTxt.textContent = '⏳ Guardando en la Hoja...';
+
+      const pend = pendienteConfirmacion;
+      pend.item.stock = pend.nuevoTotal;
+
+      const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const mov = {
+        id: pend.id,
+        sabor: pend.item.sabor,
+        delta: pend.delta,
+        ant: pend.stockActual,
+        nuevo: pend.nuevoTotal,
+        hora,
+        motivo: pend.delta > 0 ? `Producción (+${pend.delta})` : `Ajuste (${pend.delta})`
+      };
+
+      historial.unshift(mov);
+      ultimoMovimiento = mov;
+
+      renderizar();
+      mostrarUndo(mov);
+
+      const idMov = 'MOV-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      enviarCambioAGoogleSheets({
+        action: 'ajustarStock',
+        idSabor: pend.id,
+        delta: pend.delta,
+        tipoMovimiento: pend.delta > 0 ? 'Producción' : 'Merma / Ajuste',
+        notas: pend.delta > 0 ? `Lote de +${pend.delta} paletas (Mamá)` : `Ajuste (${pend.delta})`,
+        idMovimiento: idMov
+      });
+
+      setTimeout(() => {
+        cerrarModales();
+        guardando = false;
+        pendienteConfirmacion = null;
+      }, 350);
+    }
+
+    function mostrarUndo(mov) {
+      const bar = document.getElementById('undoFloatingBar');
+      const txt = document.getElementById('undoText');
+      txt.innerHTML = `<strong>${mov.sabor}: ${mov.delta > 0 ? '+' + mov.delta : mov.delta} paletas</strong> Total: ${mov.nuevo}`;
+      bar.classList.remove('hidden');
+
+      if (undoTimer) clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => {
+        bar.classList.add('hidden');
+        ultimoMovimiento = null;
+      }, 12000);
+    }
+
+    function deshacerUltimo() {
+      if (!ultimoMovimiento) return;
+      const item = inventario.find(i => i.id === ultimoMovimiento.id);
+      if (item) {
+        item.stock = ultimoMovimiento.ant;
+        historial.unshift({
+          id: item.id,
+          sabor: item.sabor,
+          delta: -ultimoMovimiento.delta,
+          ant: ultimoMovimiento.nuevo,
+          nuevo: item.stock,
+          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          motivo: '↩️ Deshacer cambio'
+        });
+
+        enviarCambioAGoogleSheets({
+          action: 'deshacerMovimiento',
+          idSabor: item.id,
+          deltaOriginal: ultimoMovimiento.delta,
+          idMovimiento: 'REV-' + Date.now()
+        });
+      }
+      document.getElementById('undoFloatingBar').classList.add('hidden');
+      ultimoMovimiento = null;
+      renderizar();
+    }
+
+    function seleccionarCat(btn) {
+      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      categoriaActiva = btn.dataset.cat;
+      renderizar();
+    }
+
+    function filtrarSoloAgotadas() {
+      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      const urgTab = document.querySelector('.cat-tab.alert-tab');
+      if (urgTab) urgTab.classList.add('active');
+      categoriaActiva = 'Urgentes';
+      renderizar();
+    }
+
+    function filtrarSabores() {
+      busqueda = document.getElementById('searchInput').value.toLowerCase().trim();
+      renderizar();
+    }
+
+    function abrirModalNuevoSabor() { document.getElementById('modalNuevoSabor').classList.remove('hidden'); }
+    function pickEmoji(btn) {
+      document.querySelectorAll('.emoji-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('nuevoEmoji').value = btn.innerText;
+    }
+    function guardarSabor() {
+      const nombre = document.getElementById('nuevoNombre').value.trim();
+      if (!nombre) return alert('Escribe el nombre del sabor');
+      const nuevoItem = {
+        id: 'SAB-' + Date.now().toString().slice(-4),
+        sabor: nombre,
+        categoria: document.getElementById('nuevoCat').value,
+        precio: Number(document.getElementById('nuevoPrecio').value) || 15,
+        stock: Number(document.getElementById('nuevoStock').value) || 0,
+        stockMinimo: 3,
+        stockMaximo: Number(document.getElementById('nuevoSaborStockMaximo') ? document.getElementById('nuevoSaborStockMaximo').value : 20) || 20,
+        emoji: document.getElementById('nuevoEmoji').value || '🍧',
+        color: '#FFE4EE'
+      };
+      inventario.push(nuevoItem);
+      enviarCambioAGoogleSheets({ action: 'guardarSabor', saborData: nuevoItem });
+      cerrarModales();
+      renderizar();
+    }
+
+    function abrirMerma(id) {
+      const item = inventario.find(i => i.id === id);
+      document.getElementById('mermaId').value = id;
+      document.getElementById('mermaNombre').textContent = `${item.emoji} ${item.sabor} (Stock actual: ${item.stock})`;
+      document.getElementById('modalMerma').classList.remove('hidden');
+    }
+    function confirmarMerma() {
+      const id = document.getElementById('mermaId').value;
+      const cant = Number(document.getElementById('mermaCant').value) || 1;
+      pedirConfirmacion(id, -cant);
+      cerrarModales();
+    }
+
+    function abrirEditar(id) {
+      const item = inventario.find(i => i.id === id);
+      document.getElementById('editId').value = id;
+      document.getElementById('editNombre').value = item.sabor;
+      document.getElementById('editPrecio').value = item.precio;
+      document.getElementById('editMin').value = item.stockMinimo;
+      document.getElementById('editMax').value = item.stockMaximo || 20;
+      document.getElementById('modalEditar').classList.remove('hidden');
+    }
+    function guardarEdicion() {
+      const id = document.getElementById('editId').value;
+      const item = inventario.find(i => i.id === id);
+      if (item) {
+        item.sabor = document.getElementById('editNombre').value;
+        item.precio = Number(document.getElementById('editPrecio').value);
+        item.stockMinimo = Number(document.getElementById('editMin').value);
+        item.stockMaximo = Number(document.getElementById('editMax').value) || 20;
+        enviarCambioAGoogleSheets({
+          action: 'guardarSabor',
+          saborData: {
+            id: item.id,
+            sabor: item.sabor,
+            precio: item.precio,
+            stockMinimo: item.stockMinimo,
+            stockMaximo: item.stockMaximo
+          }
+        });
+        renderizar();
+      }
+      cerrarModales();
+    }
+
+    function reiniciarStockCero() {
+      inventario.forEach(i => i.stock = 0);
+      historial = [];
+      ultimoMovimiento = null;
+      renderizar();
+    }
+
+    function cerrarModales() {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden'));
+      guardando = false;
+      pendienteConfirmacion = null;
+    }
+
+    function abrirModalConfig() {
+      document.getElementById('modalPreviewConfig').classList.remove('hidden');
+    }
+
+    async function sincronizarConGoogleSheets(silencioso = false) {
+      if (!APPS_SCRIPT_URL) return;
+      const statusEl = document.getElementById('syncStatusText');
+      if (!silencioso && statusEl) statusEl.textContent = '🔄 Conectando...';
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getInventario`);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.inventario)) {
+          let huboCambios = false;
+          data.inventario.forEach(serv => {
+            const loc = inventario.find(i => i.id === serv.id);
+            if (loc) {
+              if (loc.stock !== serv.stock || loc.precio !== serv.precio || loc.categoria !== serv.categoria || loc.sabor !== serv.sabor || loc.stockMaximo !== serv.stockMaximo) {
+                loc.stock = serv.stock;
+                loc.precio = serv.precio;
+                loc.categoria = serv.categoria;
+                loc.sabor = serv.sabor;
+                loc.stockMinimo = serv.stockMinimo;
+                loc.stockMaximo = serv.stockMaximo || loc.stockMaximo;
+                if (serv.emoji) loc.emoji = serv.emoji;
+                huboCambios = true;
+              }
+            } else {
+              inventario.push(serv);
+              huboCambios = true;
+            }
+          });
+          if (huboCambios) renderizar();
+          const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          if (statusEl) statusEl.textContent = `🟢 En vivo (${hora})`;
+        }
+      } catch (err) {
+        if (!silencioso && statusEl) statusEl.textContent = '🟡 Modo Local';
+      }
+    }
+
+    async function enviarCambioAGoogleSheets(payload) {
+      if (!APPS_SCRIPT_URL) return;
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Error al guardar en Google Sheets:', err);
+      }
+    }
+
+    // Inicializar con sincronización en tiempo real
+    renderizar();
+    sincronizarConGoogleSheets(false);
+    setInterval(() => {
+      if (!guardando) sincronizarConGoogleSheets(true);
+    }, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌸 Punto Dulce - Punto de Venta (POS)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #FFF7FA;
+      --bg-blush: #FFEBF2;
+      --surface-card: #FFFFFF;
+      --surface-soft: #FFF0F6;
+      --pink-primary: #E11D74;
+      --pink-primary-hover: #BE125D;
+      --pink-light: #FCE7F3;
+      --pink-border: #F9A8D4;
+      --text-main: #3B0A26;
+      --text-secondary: #6E2B4E;
+      --text-muted: #9D5377;
+      --green-cash: #16A34A;
+      --green-bg: #DCFCE7;
+      --amber-warn: #D97706;
+      --amber-bg: #FEF3C7;
+      --red-alert: #E11D48;
+      --red-bg: #FFE4E6;
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --radius-pill: 9999px;
+      --shadow-card: 0 6px 20px -3px rgba(225, 29, 116, 0.10), 0 2px 6px -1px rgba(59, 10, 38, 0.05);
+      --shadow-float: 0 12px 28px -4px rgba(190, 18, 93, 0.22);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-cream);
+      background-image: radial-gradient(circle at 10% 10%, #FFE4EE 0%, transparent 45%),
+                        radial-gradient(circle at 90% 85%, #FCE7F3 0%, transparent 50%);
+      color: var(--text-main);
+      font-size: 16px;
+      line-height: 1.35;
+      padding-bottom: 125px;
+    }
+    .app-shell { max-width: 540px; margin: 0 auto; padding: 12px; }
+
+    /* CABECERA */
+    .top-header {
+      background: linear-gradient(135deg, #FFDBE9 0%, #FFEAF2 55%, #FFF5F8 100%);
+      border: 2px solid var(--pink-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 12px;
+    }
+    .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .brand-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFFFFF;
+      color: var(--pink-primary); font-weight: 900; font-size: 0.88rem; padding: 5px 12px;
+      border-radius: var(--radius-pill); border: 1.5px solid var(--pink-border);
+    }
+    .sync-pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 800;
+      padding: 5px 10px; border-radius: var(--radius-pill); background: #FFFFFF; color: var(--text-secondary);
+      border: 1.5px solid #FBCFE8; cursor: pointer;
+    }
+    .sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #10B981; }
+
+    /* BOTONES RÁPIDOS SUPERIORES */
+    .header-quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1.5px dashed var(--pink-border);
+    }
+    .btn-quick-nav {
+      min-height: 38px; border-radius: 12px; border: 1.5px solid #FBCFE8;
+      background: #FFFFFF; color: var(--text-secondary); font-family: inherit;
+      font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; gap: 4px; padding: 4px 6px;
+      position: relative;
+    }
+    .btn-quick-nav:active { background: #FFF0F6; border-color: var(--pink-primary); }
+    .quick-badge-alert {
+      position: absolute; top: -5px; right: -4px; background: var(--red-alert);
+      color: #FFFFFF; border-radius: 10px; padding: 1px 6px; font-size: 0.72rem;
+      font-weight: 900; box-shadow: 0 2px 5px rgba(225,29,72,0.4);
+    }
+
+    /* BUSCADOR Y FILTROS */
+    .search-box-wrap { position: relative; margin-bottom: 8px; }
+    .search-input-large {
+      width: 100%; min-height: 46px; border-radius: var(--radius-md); border: 2px solid var(--pink-border);
+      background: #FFFFFF; padding: 8px 12px 8px 38px; font-family: inherit; font-size: 0.98rem;
+      font-weight: 700; color: var(--text-main); outline: none;
+    }
+    .search-input-large:focus { border-color: var(--pink-primary); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; pointer-events: none; }
+
+    .category-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
+    .cat-tab {
+      min-height: 40px; padding: 6px 14px; border-radius: var(--radius-pill); border: 2px solid var(--pink-border);
+      background: #FFFFFF; color: var(--text-secondary); font-family: inherit; font-size: 0.88rem;
+      font-weight: 800; cursor: pointer; white-space: nowrap;
+    }
+    .cat-tab.active { background: var(--pink-primary); border-color: var(--pink-primary); color: #FFFFFF; }
+
+    /* GRID DEL POS */
+    .pos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 110px;
+    }
+    .pos-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 2px solid #FBCFE8;
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 125px;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+      user-select: none;
+    }
+    .pos-card:active { transform: scale(0.97); }
+    .pos-card.selected { border-color: var(--pink-primary); background: #FFF5F9; }
+    .pos-card.out-of-stock { opacity: 0.45; background: #F9FAFB; border-color: #E5E7EB; cursor: not-allowed; }
+
+    .pos-card-badge-count {
+      position: absolute; top: -6px; right: -6px; background: var(--pink-primary);
+      color: #FFFFFF; width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.92rem; box-shadow: 0 4px 10px rgba(225, 29, 116, 0.35);
+      border: 2px solid #FFFFFF;
+    }
+    .pos-card-top { display: flex; align-items: center; gap: 8px; }
+    .pos-card-emoji { font-size: 1.8rem; line-height: 1; }
+    .pos-card-name { font-size: 1rem; font-weight: 900; color: var(--text-main); line-height: 1.15; }
+    .pos-card-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 8px; padding-top: 6px; border-top: 1.5px dashed #FBCFE8;
+    }
+    .pos-card-price { font-size: 1.2rem; font-weight: 900; color: var(--pink-primary); }
+    .pos-card-stock {
+      font-size: 0.76rem; font-weight: 800; padding: 2px 7px;
+      border-radius: var(--radius-pill); background: #DCFCE7; color: #14532D;
+    }
+    .pos-card-stock.agotado { background: #FEE2E2; color: #991B1B; }
+    .pos-card-stock.pocas { background: #FEF3C7; color: #92400E; }
+
+    /* BARRA INFERIOR DEL CARRITO */
+    .pos-cart-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF;
+      border-top: 3px solid var(--pink-border); box-shadow: 0 -8px 24px rgba(225, 29, 116, 0.15);
+      padding: 10px 14px; z-index: 1000;
+    }
+    .pos-cart-bar-inner {
+      max-width: 540px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .pos-cart-count { font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); display: block; }
+    .pos-cart-total { font-size: 1.6rem; font-weight: 900; color: var(--pink-primary); line-height: 1.1; }
+    .btn-open-checkout {
+      min-height: 48px; background: linear-gradient(135deg, #E11D74 0%, #DB2777 100%);
+      color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 8px 20px;
+      font-family: inherit; font-size: 1.05rem; font-weight: 900; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(225, 29, 116, 0.3);
+    }
+    .btn-open-checkout:disabled { background: #D1D5DB; color: #6B7280; box-shadow: none; cursor: not-allowed; }
+
+    /* MODALES GENERALES */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(59, 10, 38, 0.58); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center; padding: 12px; z-index: 2000;
+    }
+    .modal-card {
+      background: #FFFFFF; border: 3px solid var(--pink-border); border-radius: var(--radius-lg);
+      width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; padding: 16px 14px;
+      box-shadow: 0 16px 36px rgba(59, 10, 38, 0.25);
+    }
+    .modal-title { font-size: 1.3rem; font-weight: 900; color: var(--text-main); }
+    .modal-subtitle { font-size: 0.88rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 10px; }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-cancel {
+      flex: 1; min-height: 46px; border-radius: 12px; border: 2px solid #FBCFE8;
+      background: #FFFFFF; color: var(--text-secondary); font-family: inherit; font-size: 0.92rem; font-weight: 900; cursor: pointer;
+    }
+    .btn-confirm {
+      flex: 1.3; min-height: 46px; border-radius: 12px; border: none; background: var(--pink-primary);
+      color: #FFFFFF; font-family: inherit; font-size: 1rem; font-weight: 900; cursor: pointer;
+    }
+    .btn-whatsapp {
+      background: #25D366; color: #FFFFFF; border: none; border-radius: 12px;
+      min-height: 46px; font-family: inherit; font-size: 0.95rem; font-weight: 900;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+    }
+    .btn-whatsapp:active { background: #1EBE5D; }
+
+    /* ESTILOS DE PROTECCIÓN ANTI-DOBLE CLIC */
+    .btn-loading {
+      opacity: 0.65 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      background: #9CA3AF !important;
+      box-shadow: none !important;
+    }
+
+    /* MÉTODOS DE PAGO Y BILLETES */
+    .payment-method-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+    .payment-btn {
+      min-height: 42px; border-radius: 10px; border: 2px solid #FBCFE8; background: #FFFFFF;
+      font-family: inherit; font-size: 0.82rem; font-weight: 800; color: var(--text-secondary);
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;
+    }
+    .payment-btn.active { background: #FFF0F6; border-color: var(--pink-primary); color: var(--pink-primary); font-weight: 900; }
+
+    .cash-chips-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+    .cash-chip {
+      min-height: 38px; border-radius: 8px; border: 1.5px solid #FBCFE8; background: #FFFFFF;
+      font-family: inherit; font-size: 0.88rem; font-weight: 900; color: var(--text-main); cursor: pointer;
+    }
+    .change-display-box {
+      background: #DCFCE7; border: 2px solid #86EFAC; border-radius: 12px; padding: 8px;
+      text-align: center; margin: 8px 0;
+    }
+    .change-display-box .label { font-size: 0.82rem; font-weight: 800; color: #14532D; }
+    .change-display-box .amount { font-size: 1.7rem; font-weight: 900; color: #15803D; line-height: 1.1; }
+    .change-display-box.falta { background: #FEE2E2; border-color: #FCA5A5; }
+    .change-display-box.falta .label, .change-display-box.falta .amount { color: #B91C1C; }
+
+    /* FILAS DE CARRITO */
+    .order-items-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .order-item-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #FFF5F9; border-radius: 10px; padding: 6px 8px; border: 1px solid #FBCFE8; font-size: 0.9rem;
+    }
+    .order-item-stepper { display: flex; align-items: center; gap: 4px; }
+    .btn-stepper {
+      width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid var(--pink-border);
+      background: #FFFFFF; font-size: 1rem; font-weight: 900; color: var(--pink-primary);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    /* CARDS DE DEUDORES Y TICKETS */
+    .debt-card {
+      background: #FFFFFF; border: 1.5px solid #FECDD3; border-radius: 12px;
+      padding: 10px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(225,29,72,0.06);
+    }
+    .ticket-history-card {
+      background: #FFFFFF; border: 1.5px solid #FBCFE8; border-radius: 12px;
+      padding: 10px; margin-bottom: 8px;
+    }
+    .ticket-badge-folio {
+      display: inline-block; background: #FFE4EE; color: var(--pink-primary);
+      font-weight: 900; font-size: 0.78rem; padding: 2px 8px; border-radius: 6px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    
+    <!-- CABECERA -->
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="brand-badge">
+          <span>🍧</span>
+          <span>Paletería Punto Dulce</span>
+        </div>
+        <div class="sync-pill" onclick="sincronizarConGoogleSheets(false)">
+          <span class="sync-dot" id="syncDotPos"></span>
+          <span id="syncTextPos">🟢 En vivo</span>
+          <span>💰</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <div>
+          <h1 class="header-title" style="font-size: 1.45rem;">🛍️ Punto de Venta</h1>
+          <p class="header-subtitle" style="font-size: 0.88rem;">Mostrador • Selecciona paletas para cobrar</p>
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 900; background: #FFFFFF; border: 1.5px solid #FBCFE8; border-radius: 10px; padding: 4px 8px; text-align: center;">
+          <span style="color: var(--text-muted); display: block; font-size: 0.7rem;">SIGUIENTE FOLIO</span>
+          <strong id="nextFolioBadge" style="color: var(--pink-primary); font-size: 0.95rem;">#PD-001</strong>
+        </div>
+      </div>
+
+      <!-- BOTONES RÁPIDOS -->
+      <div class="header-quick-actions">
+        <button class="btn-quick-nav" onclick="abrirModalSurtido()">
+          <span>📦</span>
+          <span>Surtir Mamá</span>
+          <span class="quick-badge-alert hidden" id="badgeSurtirPendiente">0</span>
+        </button>
+        <button class="btn-quick-nav" onclick="abrirModalDeudores()">
+          <span>📝</span>
+          <span>Fiados</span>
+          <span class="quick-badge-alert hidden" id="badgeDeudoresTotal">$0</span>
+        </button>
+        <button class="btn-quick-nav" onclick="abrirModalCorte()">
+          <span>📊</span>
+          <span>Corte y Tickets</span>
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed var(--pink-border);">
+        <span style="font-size:0.78rem; font-weight:800; color:var(--text-secondary);">📱 Vista hermana:</span>
+        <a href="preview_produccion.html" style="background:#FFE4EE; color:#881337; border:1.5px solid #F472B6; text-decoration:none; padding:4px 10px; border-radius:9999px; font-size:0.78rem; font-weight:900;">🌸 Producción Mamá ➔</a>
+      </div>
+    </header>
+
+    <!-- BUSCADOR -->
+    <div class="search-box-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchPosInput" class="search-input-large" placeholder="Buscar sabor (Oreo, Limón, Cacahuate)..." oninput="filtrarSabores()">
+    </div>
+
+    <!-- PESTAÑAS -->
+    <div class="category-tabs">
+      <button class="cat-tab active" data-cat="Todas" onclick="seleccionarCat(this)">🍧 Todos</button>
+      <button class="cat-tab" data-cat="Agua" onclick="seleccionarCat(this)">💧 De Agua</button>
+      <button class="cat-tab" data-cat="Leche" onclick="seleccionarCat(this)">🥛 De Leche</button>
+    </div>
+
+    <!-- CATÁLOGO POS -->
+    <main class="pos-grid" id="posGrid"></main>
+
+  </div>
+
+  <!-- BARRA CARRITO FLOTANTE -->
+  <div class="pos-cart-bar">
+    <div class="pos-cart-bar-inner">
+      <div>
+        <span class="pos-cart-count" id="cartCountText">🛒 0 paletas</span>
+        <span class="pos-cart-total" id="cartTotalText">$0</span>
+      </div>
+      <button class="btn-open-checkout" id="btnOpenCheckout" onclick="abrirModalCobro()" disabled>
+        <span>Cobrar</span>
+        <span>➡️</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: COBRO Y CALCULADORA (EFECTIVO / TRANSFERENCIA / FIADO)           -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalCobro">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <div>
+          <h3 class="modal-title">💵 Cobrar Pedido</h3>
+          <span class="ticket-badge-folio" id="modalCheckoutFolio">#PD-001</span>
+        </div>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+
+      <div class="order-items-list" id="orderItemsList"></div>
+
+      <div style="background: #FFF0F6; border: 2px solid var(--pink-border); border-radius: 12px; padding: 8px; text-align: center; margin-bottom: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-secondary);">TOTAL A COBRAR:</span>
+        <div style="font-size: 2rem; font-weight: 900; color: var(--pink-primary); line-height: 1.1;" id="checkoutTotalAmount">$0</div>
+      </div>
+
+      <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 5px;">Método de Pago:</div>
+      <div class="payment-method-selector">
+        <button type="button" class="payment-btn active" data-method="Efectivo" onclick="cambiarMetodoPago('Efectivo')">
+          <span>💵</span>
+          <span>Efectivo</span>
+        </button>
+        <button type="button" class="payment-btn" data-method="Transferencia" onclick="cambiarMetodoPago('Transferencia')">
+          <span>📱</span>
+          <span>Transfer</span>
+        </button>
+        <button type="button" class="payment-btn" data-method="Fiado" onclick="cambiarMetodoPago('Fiado')">
+          <span>📝</span>
+          <span>Queda a Deber</span>
+        </button>
+      </div>
+
+      <!-- SECCIÓN EFECTIVO -->
+      <div id="cashCalculatorSection">
+        <div style="font-weight: 800; font-size: 0.82rem; margin-bottom: 4px;">Billetes rápidos:</div>
+        <div class="cash-chips-grid" id="cashChipsGrid"></div>
+
+        <div style="margin-bottom: 6px;">
+          <label style="font-size: 0.82rem; font-weight: 800;">Cliente entrega ($):</label>
+          <input type="number" id="inputRecibido" class="search-input-large" style="min-height: 42px; text-align: center; font-size: 1.2rem;" placeholder="0" oninput="calcularCambio()">
+        </div>
+
+        <div class="change-display-box" id="changeBox">
+          <div class="label" id="changeLabel">Su cambio es:</div>
+          <div class="amount" id="changeAmount">$0</div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN FIADO / CUENTA POR COBRAR -->
+      <div id="debtSection" class="hidden" style="background:#FFF1F2; border:1.5px solid #FECDD3; border-radius:12px; padding:10px; margin-bottom:8px;">
+        <label style="font-size:0.85rem; font-weight:900; color:#9F1239; display:block; margin-bottom:4px;">
+          👤 ¿Quién se lo lleva? (Nombre o apodo del compañero):
+        </label>
+        <input type="text" id="inputDeudorNombre" class="search-input-large" style="min-height:40px; margin-bottom:8px;" placeholder="Ej. Carlos Sistemas, Lic. Ana, Rodrigo...">
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+          <div>
+            <label style="font-size:0.78rem; font-weight:800; color:#9F1239;">Abono hoy ($):</label>
+            <input type="number" id="inputDeudorAbono" class="search-input-large" style="min-height:38px; text-align:center;" value="0" min="0" oninput="calcularSaldoDeuda()">
+          </div>
+          <div>
+            <label style="font-size:0.78rem; font-weight:800; color:#9F1239;">Resta a deber:</label>
+            <div style="font-weight:900; font-size:1.2rem; color:#9F1239; padding-top:6px;" id="textSaldoDeudor">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTA OPCIONAL DEL PEDIDO -->
+      <div style="margin-bottom: 8px;">
+        <label style="font-size: 0.78rem; font-weight: 800; color: var(--text-secondary);">Nota / Ubicación (ej. Oficina piso 3):</label>
+        <input type="text" id="inputNotaPedido" class="search-input-large" style="min-height: 38px; font-size: 0.88rem;" placeholder="Opcional...">
+      </div>
+
+      <!-- ACCIONES: BOTÓN CON PROTECCIÓN ANTI-DOBLE CLIC -->
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">Cancelar</button>
+        <button class="btn-confirm" id="btnFinalizarVenta" onclick="finalizarVentaProtegida()">
+          <span id="btnFinalizarText">✅ Cobrar y Descontar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: TICKET DE ÉXITO CON BOTÓN DIRECTO DE WHATSAPP A MAMÁ             -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalTicketExito">
+    <div class="modal-card" style="text-align: center;">
+      <span style="font-size: 2.8rem; display: block; margin-bottom: 2px;">🎉</span>
+      <h3 class="modal-title" style="color: #15803D;">¡Venta Registrada!</h3>
+      <p class="modal-subtitle" id="ticketSuccessSubtitle">Inventario central actualizado en tiempo real.</p>
+
+      <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 10px; margin: 10px 0; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span class="ticket-badge-folio" id="ticketFolioExito">#PD-001</span>
+          <span style="font-size: 0.78rem; font-weight: 800; color: #15803D;" id="ticketHoraExito">12:00 PM</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 2px;">
+          <span>Total:</span>
+          <strong id="ticketTotal" style="color: #15803D; font-size: 1.25rem;">$0</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2px;">
+          <span>Piezas:</span>
+          <span id="ticketPiezas">0 paletas</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">
+          <span>Método:</span>
+          <span id="ticketMetodo">Efectivo</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 900; color: #16A34A; padding-top: 4px; border-top: 1px dashed #86EFAC;" id="ticketCambioRow">
+          <span>Cambio entregado:</span>
+          <span id="ticketCambio">$0</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; border-top: 1px solid #DCFCE7; padding-top: 4px;" id="ticketResumen"></div>
+      </div>
+
+      <!-- BOTÓN WHATSAPP A MAMÁ -->
+      <a id="btnWhatsAppMama" href="#" target="_blank" class="btn-whatsapp" style="margin-bottom: 8px;">
+        <span style="font-size: 1.2rem;">📲</span>
+        <span>Reenviar a Mamá por WhatsApp</span>
+      </a>
+
+      <button class="btn-confirm" style="width: 100%; min-height: 44px;" onclick="cerrarModales()">
+        ✨ Siguiente Venta
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: SURTIDO CONSOLIDADO PARA MAMÁ (UNO O VARIOS PEDIDOS)             -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalSurtido">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <h3 class="modal-title">📦 Surtido de Pedidos (Mamá)</h3>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+      <p class="modal-subtitle">Selecciona los pedidos para generar un solo mensaje de surtido por WhatsApp.</p>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.82rem; font-weight: 800;">
+        <label><input type="checkbox" id="chkTodosSurtir" onchange="toggleSeleccionarTodosSurtir(this)"> Seleccionar todos</label>
+        <button style="border:none; background:transparent; color:var(--pink-primary); font-weight:900; cursor:pointer;" onclick="configurarTelefonoMama()">⚙️ Teléfono Mamá</button>
+      </div>
+
+      <div style="max-height: 240px; overflow-y: auto;" id="listaSurtidoPedidos"></div>
+
+      <div style="margin-top: 10px;">
+        <a id="btnWhatsAppConsolidado" href="#" target="_blank" class="btn-whatsapp" style="width: 100%;">
+          <span>📲</span>
+          <span id="btnTextSurtirWhatsapp">Enviar WhatsApp a Mamá</span>
+        </a>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 8px;">
+        <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: CUENTAS POR COBRAR (COMPAÑEROS QUE QUEDARON A DEBER)             -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalDeudores">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <h3 class="modal-title">📝 Cuentas por Cobrar (Fiado)</h3>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+      <p class="modal-subtitle">Control de paletas fiadas a compañeros de trabajo.</p>
+
+      <div style="background: #FFF1F2; border: 1.5px solid #FECDD3; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 800; font-size: 0.88rem; color: #9F1239;">Total Pendiente de Cobro:</span>
+        <strong style="font-size: 1.4rem; color: #9F1239;" id="deudaGlobalTotal">$0</strong>
+      </div>
+
+      <div style="max-height: 260px; overflow-y: auto;" id="listaDeudores"></div>
+
+      <div class="modal-actions" style="margin-top: 10px;">
+        <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Volver al Mostrador</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 5: CORTE DE CAJA, TICKETS DE HOY Y CANCELACIONES                   -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalCorte">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <h3 class="modal-title">📊 Corte de Caja del Día</h3>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+
+      <div style="background: #FFF0F6; border: 2px solid var(--pink-border); border-radius: 12px; padding: 10px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 900; margin-bottom: 4px;">
+          <span>Ventas Totales Hoy:</span>
+          <span style="color: var(--pink-primary);" id="corteTotalDinero">$0</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px;">
+          <span>Total Paletas Vendidas:</span>
+          <strong id="corteTotalPiezas">0 piezas</strong>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--pink-border); font-size: 0.82rem;">
+          <div>💵 Efectivo en mano: <strong id="corteEfectivo">$0</strong></div>
+          <div>📱 Transferencias: <strong id="corteTransferencia">$0</strong></div>
+          <div>📝 Fiado hoy: <strong id="corteFiadoHoy">$0</strong></div>
+          <div>📥 Abonos cobrados: <strong id="corteAbonosHoy">$0</strong></div>
+        </div>
+
+        <div style="margin-top: 8px; padding-top: 6px; border-top: 1.5px solid var(--pink-border); font-size: 0.95rem; font-weight: 900; color: #15803D; display: flex; justify-content: space-between;">
+          <span>💰 Dinero real a liquidar a Mamá:</span>
+          <span id="corteDineroRealLiquidar">$0</span>
+        </div>
+      </div>
+
+      <div style="font-weight: 800; font-size: 0.88rem; margin-bottom: 6px;">Historial de Tickets de Hoy:</div>
+      <div style="max-height: 200px; overflow-y: auto;" id="corteVentasLista"></div>
+
+      <div class="modal-actions" style="margin-top: 10px;">
+        <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 6: CANCELAR O DEVOLVER PEDIDO (TOTAL / PARCIAL / MERMA)             -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalCancelarPedido">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <div>
+          <h3 class="modal-title" style="color: #E11D48;">↩️ Modificar / Cancelar</h3>
+          <span class="ticket-badge-folio" id="cancelarModalFolio">#PD-001</span>
+        </div>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+      <p class="modal-subtitle">Indica las piezas a cancelar y si regresan al congelador o son merma.</p>
+
+      <div style="max-height: 180px; overflow-y: auto; margin-bottom: 10px;" id="cancelarItemsList"></div>
+
+      <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 5px;">¿Qué pasó con estas piezas?</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+        <button type="button" class="payment-btn active" id="btnDestinoReingreso" onclick="setDestinoCancelacion('Reingreso')">
+          <span>❄️</span>
+          <span>Regresan al Congelador</span>
+          <span style="font-size:0.7rem; color:#15803D; font-weight:700;">(Vuelve al stock)</span>
+        </button>
+        <button type="button" class="payment-btn" id="btnDestinoMerma" onclick="setDestinoCancelacion('Merma')">
+          <span>💔</span>
+          <span>Merma / Dañada</span>
+          <span style="font-size:0.7rem; color:#E11D48; font-weight:700;">(Se derritió/rompió)</span>
+        </button>
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <label style="font-size: 0.78rem; font-weight: 800;">Motivo de la cancelación:</label>
+        <input type="text" id="cancelarMotivoInput" class="search-input-large" style="min-height: 38px; font-size: 0.88rem;" placeholder="Ej. Cliente se arrepintió, cambio de sabor...">
+      </div>
+
+      <div style="background: #FEE2E2; border: 1.5px solid #FCA5A5; border-radius: 10px; padding: 8px; text-align: center; margin-bottom: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 800; color: #991B1B;">Monto a devolver / descontar:</span>
+        <div style="font-size: 1.4rem; font-weight: 900; color: #991B1B;" id="cancelarMontoAjuste">$0</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModales()">Volver</button>
+        <button class="btn-confirm" id="btnConfirmarCancelacion" style="background: #E11D48;" onclick="ejecutarCancelacionProtegida()">
+          <span id="btnConfirmarCancelacionText">Confirmar Cancelación</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: LÓGICA DEL POS, PERSISTENCIA, BLINDAJE Y WHATSAPP             -->
+  <!-- ========================================================================= -->
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFCoHM5pWYEam0ebz1lFtltAEanl8wR6AZvMgFHdI66kI4MRVhZi6gWv-XNdj49_A/exec';
+
+    // Estado local del inventario (24 sabores oficiales)
+    let inventario = [
+      { id: 'SAB-01', sabor: 'Cacahuate', categoria: 'Leche', precio: 15, stock: 11, emoji: '🥜' },
+      { id: 'SAB-02', sabor: 'Oreo', categoria: 'Leche', precio: 15, stock: 4, emoji: '🍪' },
+      { id: 'SAB-03', sabor: 'Choco Milk', categoria: 'Leche', precio: 15, stock: 2, emoji: '🍫' },
+      { id: 'SAB-04', sabor: 'Fresa Cremosa', categoria: 'Leche', precio: 15, stock: 0, emoji: '🍓' },
+      { id: 'SAB-05', sabor: 'Vainilla', categoria: 'Leche', precio: 15, stock: 5, emoji: '🍦' },
+      { id: 'SAB-06', sabor: 'Piña con Chamoy', categoria: 'Agua', precio: 15, stock: 4, emoji: '🍍' },
+      { id: 'SAB-07', sabor: 'Nance', categoria: 'Agua', precio: 15, stock: 10, emoji: '🍒' },
+      { id: 'SAB-08', sabor: 'Coco', categoria: 'Leche', precio: 15, stock: 16, emoji: '🥥' },
+      { id: 'SAB-09', sabor: 'Elote', categoria: 'Leche', precio: 18, stock: 0, emoji: '🌽' },
+      { id: 'SAB-10', sabor: 'Fresas con Crema', categoria: 'Leche', precio: 18, stock: 0, emoji: '🍓' },
+      { id: 'SAB-11', sabor: 'Mazapán', categoria: 'Leche', precio: 18, stock: 12, emoji: '🍬' },
+      { id: 'SAB-12', sabor: 'Pay de Limón', categoria: 'Leche', precio: 18, stock: 12, emoji: '🍋' },
+      { id: 'SAB-13', sabor: 'Crema y Zarzamora', categoria: 'Leche', precio: 18, stock: 8, emoji: '🫐' },
+      { id: 'SAB-14', sabor: 'Duvalín', categoria: 'Leche', precio: 18, stock: 11, emoji: '🍮' },
+      { id: 'SAB-15', sabor: 'Capuchino Moka', categoria: 'Leche', precio: 18, stock: 13, emoji: '☕' },
+      { id: 'SAB-16', sabor: 'Tiramisú', categoria: 'Leche', precio: 18, stock: 18, emoji: '🍰' },
+      { id: 'SAB-17', sabor: 'Pulparindo', categoria: 'Agua', precio: 18, stock: 13, emoji: '🌶️' },
+      { id: 'SAB-18', sabor: 'Pingüino', categoria: 'Leche', precio: 18, stock: 10, emoji: '🐧' },
+      { id: 'SAB-19', sabor: 'Chocorrol', categoria: 'Leche', precio: 18, stock: 5, emoji: '🌀' },
+      { id: 'SAB-20', sabor: 'Gansito', categoria: 'Leche', precio: 18, stock: 8, emoji: '🧁' },
+      { id: 'SAB-21', sabor: 'Plátano con Nutella', categoria: 'Leche', precio: 18, stock: 4, emoji: '🍌' },
+      { id: 'SAB-22', sabor: 'Chocolate Abuelita', categoria: 'Leche', precio: 18, stock: 13, emoji: '🍫' },
+      { id: 'SAB-23', sabor: 'Chicle', categoria: 'Leche', precio: 18, stock: 7, emoji: '🫧' },
+      { id: 'SAB-24', sabor: 'Guanábana', categoria: 'Leche', precio: 18, stock: 0, emoji: '🍈' }
+    ];
+
+    // Variables reactivas
+    let carrito = []; // { id, sabor, precio, emoji, cantidad }
+    let categoriaActiva = 'Todas';
+    let busqueda = '';
+    let guardando = false; // Bandera de blindaje anti-doble clic
+    let metodoPagoActual = 'Efectivo';
+    let dineroRecibido = 0;
+    let destinoCancelacion = 'Reingreso';
+    let ventaParaCancelar = null;
+
+    // Persistencia local en LocalStorage
+    let consecutivoFolio = Number(localStorage.getItem('pd_folio_consecutivo') || 1);
+    let ventasDelDia = JSON.parse(localStorage.getItem('pd_ventas_dia') || '[]');
+    let cuentasPorCobrar = JSON.parse(localStorage.getItem('pd_cuentas_cobrar') || '[]');
+    let telefonoMama = localStorage.getItem('pd_telefono_mama') || '';
+
+    // =========================================================================
+    // RENDERIZADO DEL CATÁLOGO POS
+    // =========================================================================
+    function renderizarPOS() {
+      const grid = document.getElementById('posGrid');
+      const filtrados = inventario.filter(item => {
+        const coincideCat = categoriaActiva === 'Todas' || item.categoria === categoriaActiva;
+        const coincideBusqueda = !busqueda || item.sabor.toLowerCase().includes(busqueda);
+        return coincideCat && coincideBusqueda;
+      });
+
+      if (filtrados.length === 0) {
+        grid.innerHTML = `<div style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 30px 10px;">
+          No se encontraron paletas con ese criterio 🔍
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtrados.map(item => {
+        const itemEnCarrito = carrito.find(c => c.id === item.id);
+        const cantCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+        const disponible = Math.max(0, item.stock - cantCarrito);
+        const agotado = item.stock <= 0;
+        const sinMasStock = disponible <= 0;
+
+        let stockClass = '';
+        let stockText = `${item.stock} en stock`;
+        if (agotado) {
+          stockClass = 'agotado';
+          stockText = 'AGOTADO';
+        } else if (item.stock <= 3) {
+          stockClass = 'pocas';
+          stockText = `¡Solo ${item.stock}!`;
+        }
+
+        return `
+          <div class="pos-card ${cantCarrito > 0 ? 'selected' : ''} ${agotado ? 'out-of-stock' : ''}" 
+               onclick="clickPaletaCard('${item.id}')">
+            ${cantCarrito > 0 ? `<div class="pos-card-badge-count">${cantCarrito}</div>` : ''}
+            
+            <div class="pos-card-top">
+              <span class="pos-card-emoji">${item.emoji}</span>
+              <span class="pos-card-name">${item.sabor}</span>
+            </div>
+
+            <div class="pos-card-bottom">
+              <span class="pos-card-price">$${item.precio}</span>
+              <span class="pos-card-stock ${stockClass}">${stockText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      actualizarBadgesHeader();
+    }
+
+    function clickPaletaCard(id) {
+      const item = inventario.find(i => i.id === id);
+      if (!item || item.stock <= 0) return;
+
+      const enCarrito = carrito.find(c => c.id === id);
+      const cantActual = enCarrito ? enCarrito.cantidad : 0;
+
+      if (cantActual >= item.stock) {
+        mostrarAvisoRapido(`⚠️ Solo quedan ${item.stock} paletas de ${item.sabor}`);
+        return;
+      }
+
+      if (enCarrito) {
+        enCarrito.cantidad += 1;
+      } else {
+        carrito.push({
+          id: item.id,
+          sabor: item.sabor,
+          precio: item.precio,
+          emoji: item.emoji,
+          cantidad: 1
+        });
+      }
+
+      renderizarPOS();
+      actualizarBarraCarrito();
+    }
+
+    function actualizarBarraCarrito() {
+      const totalPiezas = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+      const totalDinero = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+
+      document.getElementById('cartCountText').textContent = `🛒 ${totalPiezas} paleta${totalPiezas === 1 ? '' : 's'}`;
+      document.getElementById('cartTotalText').textContent = `$${totalDinero}`;
+      document.getElementById('btnOpenCheckout').disabled = totalPiezas === 0;
+    }
+
+    function actualizarBadgesHeader() {
+      // Siguiente folio
+      const folioStr = '#PD-' + String(consecutivoFolio).padStart(3, '0');
+      document.getElementById('nextFolioBadge').textContent = folioStr;
+
+      // Deudas pendientes
+      const totalDeuda = cuentasPorCobrar.reduce((sum, c) => sum + c.saldo, 0);
+      const badgeDeuda = document.getElementById('badgeDeudoresTotal');
+      if (totalDeuda > 0) {
+        badgeDeuda.textContent = `$${totalDeuda}`;
+        badgeDeuda.classList.remove('hidden');
+      } else {
+        badgeDeuda.classList.add('hidden');
+      }
+
+      // Surtidos pendientes
+      const surtirPendientes = ventasDelDia.filter(v => !v.surtido).length;
+      const badgeSurtir = document.getElementById('badgeSurtirPendiente');
+      if (surtirPendientes > 0) {
+        badgeSurtir.textContent = surtirPendientes;
+        badgeSurtir.classList.remove('hidden');
+      } else {
+        badgeSurtir.classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // MODAL DE COBRO Y CALCULADORA DE CAMBIO
+    // =========================================================================
+    function abrirModalCobro() {
+      if (carrito.length === 0) return;
+
+      const totalDinero = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+      const folioStr = '#PD-' + String(consecutivoFolio).padStart(3, '0');
+      document.getElementById('modalCheckoutFolio').textContent = folioStr;
+      document.getElementById('checkoutTotalAmount').textContent = `$${totalDinero}`;
+
+      // Render lista editable en checkout
+      const listEl = document.getElementById('orderItemsList');
+      listEl.innerHTML = carrito.map(item => `
+        <div class="order-item-row">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 1.3rem;">${item.emoji}</span>
+            <div>
+              <div style="font-weight: 800; color: var(--text-main);">${item.sabor}</div>
+              <div style="font-size: 0.78rem; color: var(--pink-primary); font-weight: 800;">$${item.precio} c/u</div>
+            </div>
+          </div>
+          <div class="order-item-stepper">
+            <button class="btn-stepper" onclick="modificarItemCarrito('${item.id}', -1)">-</button>
+            <span style="font-weight: 900; min-width: 20px; text-align: center;">${item.cantidad}</span>
+            <button class="btn-stepper" onclick="modificarItemCarrito('${item.id}', 1)">+</button>
+            <span style="font-weight: 900; margin-left: 6px; min-width: 42px; text-align: right;">$${item.cantidad * item.precio}</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Generar billetes rápidos inteligentes
+      const chipsEl = document.getElementById('cashChipsGrid');
+      chipsEl.innerHTML = `
+        <button class="cash-chip" onclick="setRecibido(${totalDinero})">Exacto ($${totalDinero})</button>
+        <button class="cash-chip" onclick="setRecibido(50)">$50</button>
+        <button class="cash-chip" onclick="setRecibido(100)">$100</button>
+        <button class="cash-chip" onclick="setRecibido(200)">$200</button>
+        <button class="cash-chip" onclick="setRecibido(500)">$500</button>
+        <button class="cash-chip" onclick="sumarRecibido(20)">+$20</button>
+        <button class="cash-chip" onclick="sumarRecibido(50)">+$50</button>
+        <button class="cash-chip" onclick="setRecibido(0)">Borrar</button>
+      `;
+
+      dineroRecibido = totalDinero;
+      document.getElementById('inputRecibido').value = totalDinero;
+      calcularCambio();
+      calcularSaldoDeuda();
+
+      document.getElementById('modalCobro').classList.remove('hidden');
+    }
+
+    function modificarItemCarrito(id, delta) {
+      const itemInv = inventario.find(i => i.id === id);
+      const itemCar = carrito.find(c => c.id === id);
+      if (!itemCar) return;
+
+      if (delta > 0 && itemCar.cantidad >= itemInv.stock) {
+        mostrarAvisoRapido(`Máximo en stock (${itemInv.stock})`);
+        return;
+      }
+
+      itemCar.cantidad += delta;
+      if (itemCar.cantidad <= 0) {
+        carrito = carrito.filter(c => c.id !== id);
+      }
+
+      if (carrito.length === 0) {
+        cerrarModales();
+      } else {
+        abrirModalCobro();
+      }
+      renderizarPOS();
+      actualizarBarraCarrito();
+    }
+
+    function cambiarMetodoPago(metodo) {
+      metodoPagoActual = metodo;
+      document.querySelectorAll('.payment-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.method === metodo);
+      });
+
+      const secCash = document.getElementById('cashCalculatorSection');
+      const secDebt = document.getElementById('debtSection');
+
+      if (metodo === 'Efectivo') {
+        secCash.classList.remove('hidden');
+        secDebt.classList.add('hidden');
+      } else if (metodo === 'Transferencia') {
+        secCash.classList.add('hidden');
+        secDebt.classList.add('hidden');
+      } else if (metodo === 'Fiado') {
+        secCash.classList.add('hidden');
+        secDebt.classList.remove('hidden');
+        calcularSaldoDeuda();
+      }
+    }
+
+    function setRecibido(monto) {
+      dineroRecibido = monto;
+      document.getElementById('inputRecibido').value = monto > 0 ? monto : '';
+      calcularCambio();
+    }
+
+    function sumarRecibido(monto) {
+      dineroRecibido = (Number(dineroRecibido) || 0) + monto;
+      document.getElementById('inputRecibido').value = dineroRecibido;
+      calcularCambio();
+    }
+
+    function calcularCambio() {
+      const total = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+      const recibido = Number(document.getElementById('inputRecibido').value) || 0;
+      dineroRecibido = recibido;
+      const cambio = recibido - total;
+
+      const box = document.getElementById('changeBox');
+      const label = document.getElementById('changeLabel');
+      const amount = document.getElementById('changeAmount');
+
+      if (recibido === 0) {
+        box.classList.remove('falta');
+        label.textContent = 'Ingrese monto recibido:';
+        amount.textContent = '$0';
+      } else if (cambio < 0) {
+        box.classList.add('falta');
+        label.textContent = 'Faltan cobrar:';
+        amount.textContent = `$${Math.abs(cambio)}`;
+      } else {
+        box.classList.remove('falta');
+        label.textContent = 'Su cambio es:';
+        amount.textContent = `$${cambio}`;
+      }
+    }
+
+    function calcularSaldoDeuda() {
+      const total = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+      const abono = Number(document.getElementById('inputDeudorAbono').value) || 0;
+      const saldo = Math.max(0, total - abono);
+      document.getElementById('textSaldoDeudor').textContent = `$${saldo}`;
+    }
+
+    // =========================================================================
+    // FINALIZACIÓN DE VENTA (BLINDAJE ANTI-DOBLE CLIC Y PERSISTENCIA)
+    // =========================================================================
+    async function finalizarVentaProtegida() {
+      if (guardando) return; // Protección contra doble toque
+
+      const totalDinero = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
+      const totalPiezas = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+
+      let deudorNombre = '';
+      let abonoInicial = 0;
+      let saldoDeudor = 0;
+
+      if (metodoPagoActual === 'Fiado') {
+        deudorNombre = document.getElementById('inputDeudorNombre').value.trim();
+        if (!deudorNombre) {
+          alert('Por favor escribe el nombre o apodo del compañero que queda a deber.');
+          document.getElementById('inputDeudorNombre').focus();
+          return;
+        }
+        abonoInicial = Number(document.getElementById('inputDeudorAbono').value) || 0;
+        saldoDeudor = Math.max(0, totalDinero - abonoInicial);
+      }
+
+      // ACTIVAR BLINDAJE VISUAL
+      guardando = true;
+      const btn = document.getElementById('btnFinalizarVenta');
+      const btnText = document.getElementById('btnFinalizarText');
+      btn.disabled = true;
+      btn.classList.add('btn-loading');
+      btnText.textContent = '⏳ Guardando y descontando...';
+
+      const folioActual = '#PD-' + String(consecutivoFolio).padStart(3, '0');
+      const notaPedido = document.getElementById('inputNotaPedido').value.trim();
+      const cambioCalculado = metodoPagoActual === 'Efectivo' ? Math.max(0, dineroRecibido - totalDinero) : 0;
+      const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Descontar inventario localmente de inmediato
+      carrito.forEach(c => {
+        const item = inventario.find(i => i.id === c.id);
+        if (item) item.stock = Math.max(0, item.stock - c.cantidad);
+      });
+
+      const resumenTexto = carrito.map(c => `${c.cantidad}x ${c.sabor}`).join(', ');
+
+      // Objeto de la venta
+      const venta = {
+        id: 'VEN-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        folio: folioActual,
+        totalDinero,
+        totalPiezas,
+        metodoPago: metodoPagoActual,
+        deudor: deudorNombre,
+        abonoInicial,
+        saldoDeudor,
+        items: JSON.parse(JSON.stringify(carrito)),
+        resumen: resumenTexto,
+        nota: notaPedido,
+        cambio: cambioCalculado,
+        hora: horaActual,
+        fecha: new Date().toLocaleDateString(),
+        surtido: false
+      };
+
+      // Guardar localmente
+      ventasDelDia.unshift(venta);
+      localStorage.setItem('pd_ventas_dia', JSON.stringify(ventasDelDia));
+
+      // Si fue fiado, guardar en cuentas por cobrar
+      if (metodoPagoActual === 'Fiado' && saldoDeudor > 0) {
+        cuentasPorCobrar.unshift({
+          idVenta: venta.id,
+          folio: folioActual,
+          deudor: deudorNombre,
+          total: totalDinero,
+          abono: abonoInicial,
+          saldo: saldoDeudor,
+          resumen: resumenTexto,
+          fecha: venta.fecha,
+          hora: horaActual
+        });
+        localStorage.setItem('pd_cuentas_cobrar', JSON.stringify(cuentasPorCobrar));
+      }
+
+      // Incrementar folio consecutivo
+      consecutivoFolio += 1;
+      localStorage.setItem('pd_folio_consecutivo', consecutivoFolio);
+
+      // Enviar a Google Sheets en segundo plano
+      enviarVentaAGoogleSheets({
+        action: 'registrarVenta',
+        venta: {
+          idVenta: venta.id,
+          folio: venta.folio,
+          totalDinero: venta.totalDinero,
+          totalPiezas: venta.totalPiezas,
+          metodoPago: venta.metodoPago,
+          deudor: venta.deudor,
+          abonoInicial: venta.abonoInicial,
+          saldo: venta.saldoDeudor,
+          items: venta.items,
+          notas: venta.nota ? `${venta.nota} (${venta.metodoPago})` : venta.metodoPago
+        }
+      });
+
+      // Configurar enlace de WhatsApp directo para Mamá
+      prepararMensajeWhatsAppTicket(venta);
+
+      // Limpiar y mostrar modal de éxito
+      setTimeout(() => {
+        carrito = [];
+        renderizarPOS();
+        actualizarBarraCarrito();
+        cerrarModales();
+
+        document.getElementById('ticketFolioExito').textContent = venta.folio;
+        document.getElementById('ticketHoraExito').textContent = venta.hora;
+        document.getElementById('ticketTotal').textContent = `$${venta.totalDinero}`;
+        document.getElementById('ticketPiezas').textContent = `${venta.totalPiezas} paletas`;
+        document.getElementById('ticketMetodo').textContent = venta.metodoPago === 'Fiado' ? `Fiado (${venta.deudor})` : venta.metodoPago;
+        document.getElementById('ticketResumen').textContent = venta.resumen;
+
+        if (venta.metodoPago === 'Efectivo' && venta.cambio > 0) {
+          document.getElementById('ticketCambioRow').classList.remove('hidden');
+          document.getElementById('ticketCambio').textContent = `$${venta.cambio}`;
+        } else {
+          document.getElementById('ticketCambioRow').classList.add('hidden');
+        }
+
+        document.getElementById('modalTicketExito').classList.remove('hidden');
+
+        // Restaurar estado del botón
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        btnText.textContent = '✅ Cobrar y Descontar';
+        document.getElementById('inputDeudorNombre').value = '';
+        document.getElementById('inputNotaPedido').value = '';
+        guardando = false;
+      }, 350);
+    }
+
+    // =========================================================================
+    // GENERADOR DE WHATSAPP PARA MAMÁ (INDIVIDUAL Y CONSOLIDADO)
+    // =========================================================================
+    function prepararMensajeWhatsAppTicket(venta) {
+      let mensaje = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      mensaje += `🍧 *SURTIR PEDIDO ${venta.folio}*\n`;
+      mensaje += `📅 ${venta.fecha} - ${venta.hora}\n`;
+      if (venta.deudor) mensaje += `👤 Compañero: *${venta.deudor}*\n`;
+      if (venta.nota) mensaje += `📍 Ubicación: ${venta.nota}\n`;
+      mensaje += `\n🧊 *Piezas a sacar:*\n`;
+
+      venta.items.forEach(it => {
+        mensaje += `• ${it.cantidad}x ${it.emoji || '🍧'} ${it.sabor}\n`;
+      });
+
+      mensaje += `--------------------------\n`;
+      mensaje += `📦 *Total:* ${venta.totalPiezas} paleta${venta.totalPiezas === 1 ? '' : 's'}\n`;
+      mensaje += `💰 *Cobro:* $${venta.totalDinero} (${venta.metodoPago})\n`;
+
+      const encoded = encodeURI(mensaje);
+      const tel = telefonoMama ? `521${telefonoMama.replace(/\D/g, '')}` : '';
+      const url = tel ? `https://wa.me/${tel}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+      document.getElementById('btnWhatsAppMama').href = url;
+    }
+
+    function abrirModalSurtido() {
+      const container = document.getElementById('listaSurtidoPedidos');
+      if (ventasDelDia.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">No hay pedidos registrados hoy</div>`;
+        document.getElementById('btnWhatsAppConsolidado').classList.add('hidden');
+      } else {
+        document.getElementById('btnWhatsAppConsolidado').classList.remove('hidden');
+        container.innerHTML = ventasDelDia.map((v, idx) => `
+          <div style="background:#FFF5F9; border:1px solid #FBCFE8; border-radius:10px; padding:8px 10px; margin-bottom:6px; font-size:0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="display:flex; align-items:center; gap:6px; font-weight:900;">
+                <input type="checkbox" class="chk-surtir-item" data-id="${v.id}" onchange="actualizarBotonSurtidoConsolidado()">
+                <span class="ticket-badge-folio">${v.folio}</span>
+                <span>${v.totalPiezas} paletas</span>
+              </label>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${v.hora}</span>
+            </div>
+            <div style="color:var(--text-secondary); margin-top:3px; padding-left:22px; font-size:0.8rem;">
+              ${v.resumen} ${v.nota ? `• <em>${v.nota}</em>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      actualizarBotonSurtidoConsolidado();
+      document.getElementById('modalSurtido').classList.remove('hidden');
+    }
+
+    function toggleSeleccionarTodosSurtir(master) {
+      document.querySelectorAll('.chk-surtir-item').forEach(chk => chk.checked = master.checked);
+      actualizarBotonSurtidoConsolidado();
+    }
+
+    function actualizarBotonSurtidoConsolidado() {
+      const seleccionados = [];
+      document.querySelectorAll('.chk-surtir-item:checked').forEach(chk => {
+        const venta = ventasDelDia.find(v => v.id === chk.dataset.id);
+        if (venta) seleccionados.push(venta);
+      });
+
+      const btn = document.getElementById('btnWhatsAppConsolidado');
+      const btnText = document.getElementById('btnTextSurtirWhatsapp');
+
+      if (seleccionados.length === 0) {
+        btnText.textContent = 'Selecciona pedidos para surtir';
+        btn.href = '#';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+        return;
+      }
+
+      btn.style.pointerEvents = 'auto';
+      btn.style.opacity = '1';
+      btnText.textContent = `📲 Enviar WhatsApp (${seleccionados.length} pedidos juntos)`;
+
+      // Consolidar totales por sabor
+      const saboresAgrupados = {};
+      let granTotalPiezas = 0;
+      const folios = [];
+
+      seleccionados.forEach(v => {
+        folios.push(v.folio);
+        v.items.forEach(it => {
+          saboresAgrupados[it.sabor] = (saboresAgrupados[it.sabor] || 0) + it.cantidad;
+          granTotalPiezas += it.cantidad;
+        });
+      });
+
+      let msg = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      msg += `📦 *SURTIDO CONSOLIDADO PARA MAMÁ*\n`;
+      msg += `📋 Folios incluidos: ${folios.join(', ')}\n\n`;
+      msg += `🧊 *TOTAL DE PALETAS A SACAR DEL CONGELADOR:*\n`;
+
+      for (const [sabor, cant] of Object.entries(saboresAgrupados)) {
+        msg += `• *${cant}x* ${sabor}\n`;
+      }
+
+      msg += `--------------------------\n`;
+      msg += `🍨 *GRAN TOTAL:* ${granTotalPiezas} paletas\n`;
+
+      const encoded = encodeURI(msg);
+      const tel = telefonoMama ? `521${telefonoMama.replace(/\D/g, '')}` : '';
+      btn.href = tel ? `https://wa.me/${tel}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+    }
+
+    function configurarTelefonoMama() {
+      const tel = prompt('Introduce el número de WhatsApp de tu Mamá (10 dígitos):', telefonoMama || '');
+      if (tel !== null) {
+        telefonoMama = tel.trim();
+        localStorage.setItem('pd_telefono_mama', telefonoMama);
+        alert('Teléfono de Mamá guardado exitosamente.');
+        actualizarBotonSurtidoConsolidado();
+      }
+    }
+
+    // =========================================================================
+    // CONTROL DE DEUDORES (CUENTAS POR COBRAR / FIADO)
+    // =========================================================================
+    function abrirModalDeudores() {
+      const container = document.getElementById('listaDeudores');
+      const totalDeuda = cuentasPorCobrar.reduce((sum, c) => sum + c.saldo, 0);
+      document.getElementById('deudaGlobalTotal').textContent = `$${totalDeuda}`;
+
+      if (cuentasPorCobrar.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">
+          🎉 ¡Nadie te debe nada! Cuentas al corriente.
+        </div>`;
+      } else {
+        container.innerHTML = cuentasPorCobrar.map((d, idx) => `
+          <div class="debt-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <strong style="color:var(--text-main); font-size:1rem;">👤 ${d.deudor}</strong>
+              <span class="ticket-badge-folio">${d.folio}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--text-secondary); margin-bottom:4px;">
+              <span>Total Pedido: $${d.total} (Abonó $${d.abono})</span>
+              <strong style="color:#E11D48; font-size:1.05rem;">Debe: $${d.saldo}</strong>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">
+              ${d.resumen} • <span style="font-size:0.72rem;">${d.fecha} ${d.hora}</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem;" onclick="registrarAbonoPrompt(${idx}, false)">
+                💵 Abonar $
+              </button>
+              <button class="btn-confirm" style="min-height:34px; padding:2px 8px; font-size:0.8rem; background:#16A34A;" onclick="registrarAbonoPrompt(${idx}, true)">
+                ✅ Liquidar Todo ($${d.saldo})
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modalDeudores').classList.remove('hidden');
+    }
+
+    function registrarAbonoPrompt(idx, liquidarCompleto) {
+      const deuda = cuentasPorCobrar[idx];
+      if (!deuda) return;
+
+      let monto = 0;
+      if (liquidarCompleto) {
+        monto = deuda.saldo;
+      } else {
+        const respuesta = prompt(`¿Cuánto abona ${deuda.deudor}? (Saldo actual: $${deuda.saldo}):`, deuda.saldo);
+        if (respuesta === null) return;
+        monto = Number(respuesta) || 0;
+      }
+
+      if (monto <= 0) return;
+      if (monto > deuda.saldo) monto = deuda.saldo;
+
+      deuda.abono += monto;
+      deuda.saldo -= monto;
+
+      // Registrar abono en Google Sheets
+      enviarVentaAGoogleSheets({
+        action: 'registrarAbonoDeuda',
+        abono: {
+          folio: deuda.folio,
+          idVenta: deuda.idVenta,
+          monto: monto,
+          deudor: deuda.deudor
+        }
+      });
+
+      if (deuda.saldo <= 0) {
+        cuentasPorCobrar.splice(idx, 1);
+        alert(`🎉 ¡Cuenta de ${deuda.deudor} liquidada por completo!`);
+      } else {
+        alert(`✅ Se registró el abono de $${monto}. Nuevo saldo: $${deuda.saldo}`);
+      }
+
+      localStorage.setItem('pd_cuentas_cobrar', JSON.stringify(cuentasPorCobrar));
+      abrirModalDeudores();
+      renderizarPOS();
+    }
+
+    // =========================================================================
+    // CORTE DE CAJA Y CANCELACIÓN DE PEDIDOS (REINGRESO O MERMA)
+    // =========================================================================
+    function abrirModalCorte() {
+      const totalD = ventasDelDia.reduce((s, v) => s + v.totalDinero, 0);
+      const totalP = ventasDelDia.reduce((s, v) => s + v.totalPiezas, 0);
+      const efec = ventasDelDia.filter(v => v.metodoPago === 'Efectivo').reduce((s, v) => s + v.totalDinero, 0);
+      const transf = ventasDelDia.filter(v => v.metodoPago === 'Transferencia').reduce((s, v) => s + v.totalDinero, 0);
+      const fiadoHoy = ventasDelDia.filter(v => v.metodoPago === 'Fiado').reduce((s, v) => s + v.saldoDeudor, 0);
+      const abonosHoy = ventasDelDia.filter(v => v.metodoPago === 'Fiado').reduce((s, v) => s + v.abonoInicial, 0);
+      const liquidarReal = efec + transf + abonosHoy;
+
+      document.getElementById('corteTotalDinero').textContent = `$${totalD}`;
+      document.getElementById('corteTotalPiezas').textContent = `${totalP} paletas`;
+      document.getElementById('corteEfectivo').textContent = `$${efec}`;
+      document.getElementById('corteTransferencia').textContent = `$${transf}`;
+      document.getElementById('corteFiadoHoy').textContent = `$${fiadoHoy}`;
+      document.getElementById('corteAbonosHoy').textContent = `$${abonosHoy}`;
+      document.getElementById('corteDineroRealLiquidar').textContent = `$${liquidarReal}`;
+
+      const list = document.getElementById('corteVentasLista');
+      if (ventasDelDia.length === 0) {
+        list.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:10px;">Aún no se han cobrado ventas hoy</div>`;
+      } else {
+        list.innerHTML = ventasDelDia.map((v, idx) => `
+          <div class="ticket-history-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="ticket-badge-folio">${v.folio}</span>
+              <strong style="color:var(--pink-primary);">$${v.totalDinero} (${v.metodoPago})</strong>
+              <span style="color:var(--text-muted);font-size:0.75rem;">${v.hora}</span>
+            </div>
+            <div style="color:var(--text-secondary);margin:4px 0;font-size:0.82rem;">${v.resumen}</div>
+            <div style="display:flex;justify-content:flex-end;">
+              <button class="btn-cancel" style="min-height:30px;padding:2px 8px;font-size:0.75rem;color:#E11D48;border-color:#FECDD3;" onclick="abrirModalCancelarVenta('${v.id}')">
+                ↩️ Cancelar / Devolver
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modalCorte').classList.remove('hidden');
+    }
+
+    function abrirModalCancelarVenta(idVenta) {
+      const venta = ventasDelDia.find(v => v.id === idVenta);
+      if (!venta) return;
+      ventaParaCancelar = JSON.parse(JSON.stringify(venta)); // Copia profunda
+
+      document.getElementById('cancelarModalFolio').textContent = venta.folio;
+      document.getElementById('cancelarMotivoInput').value = '';
+      destinoCancelacion = 'Reingreso';
+      setDestinoCancelacion('Reingreso');
+
+      // Inicializar items a devolver con el 100% por defecto
+      const listEl = document.getElementById('cancelarItemsList');
+      listEl.innerHTML = ventaParaCancelar.items.map((it, idx) => `
+        <div class="order-item-row" style="background:#FFF1F2; border-color:#FECDD3;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span>${it.emoji || '🍧'}</span>
+            <div>
+              <div style="font-weight:800; font-size:0.88rem;">${it.sabor}</div>
+              <div style="font-size:0.75rem; color:#9F1239;">Compradas: ${it.cantidad}</div>
+            </div>
+          </div>
+          <div class="order-item-stepper">
+            <button class="btn-stepper" onclick="ajustarPiezaDevuelta(${idx}, -1)">-</button>
+            <span style="font-weight:900; min-width:20px; text-align:center;" id="cantDevuelta_${idx}">${it.cantidad}</span>
+            <button class="btn-stepper" onclick="ajustarPiezaDevuelta(${idx}, 1)">+</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Guardar cantidades devueltas en el objeto
+      ventaParaCancelar.items.forEach(it => it.devueltas = it.cantidad);
+      calcularMontoCancelacion();
+
+      document.getElementById('modalCancelarPedido').classList.remove('hidden');
+    }
+
+    function ajustarPiezaDevuelta(idx, delta) {
+      const it = ventaParaCancelar.items[idx];
+      const nueva = (it.devueltas || 0) + delta;
+      if (nueva < 0 || nueva > it.cantidad) return;
+      it.devueltas = nueva;
+      document.getElementById(`cantDevuelta_${idx}`).textContent = nueva;
+      calcularMontoCancelacion();
+    }
+
+    function setDestinoCancelacion(destino) {
+      destinoCancelacion = destino;
+      document.getElementById('btnDestinoReingreso').classList.toggle('active', destino === 'Reingreso');
+      document.getElementById('btnDestinoMerma').classList.toggle('active', destino === 'Merma');
+    }
+
+    function calcularMontoCancelacion() {
+      let suma = 0;
+      ventaParaCancelar.items.forEach(it => {
+        suma += (it.devueltas || 0) * it.precio;
+      });
+      document.getElementById('cancelarMontoAjuste').textContent = `$${suma}`;
+    }
+
+    async function ejecutarCancelacionProtegida() {
+      if (guardando || !ventaParaCancelar) return;
+
+      const itemsDevueltos = ventaParaCancelar.items
+        .filter(it => it.devueltas > 0)
+        .map(it => ({ id: it.id, sabor: it.sabor, cantidad: it.devueltas, precio: it.precio }));
+
+      if (itemsDevueltos.length === 0) {
+        alert('Selecciona al menos 1 paleta a devolver o cancelar.');
+        return;
+      }
+
+      const totalPiezasDevueltas = itemsDevueltos.reduce((s, it) => s + it.cantidad, 0);
+      const importeDevuelto = itemsDevueltos.reduce((s, it) => s + (it.cantidad * it.precio), 0);
+      const motivo = document.getElementById('cancelarMotivoInput').value.trim() || 'Cancelación en mostrador';
+
+      guardando = true;
+      const btn = document.getElementById('btnConfirmarCancelacion');
+      const btnText = document.getElementById('btnConfirmarCancelacionText');
+      btn.disabled = true;
+      btn.classList.add('btn-loading');
+      btnText.textContent = '⏳ Procesando cancelación...';
+
+      // 1. Si el destino es Reingreso, sumar al stock local
+      if (destinoCancelacion === 'Reingreso') {
+        itemsDevueltos.forEach(dev => {
+          const itemInv = inventario.find(i => i.id === dev.id);
+          if (itemInv) itemInv.stock += dev.cantidad;
+        });
+      }
+
+      // 2. Ajustar venta original en ventasDelDia
+      const ventaOrig = ventasDelDia.find(v => v.id === ventaParaCancelar.id);
+      if (ventaOrig) {
+        if (totalPiezasDevueltas >= ventaOrig.totalPiezas) {
+          // Cancelación total
+          ventasDelDia = ventasDelDia.filter(v => v.id !== ventaOrig.id);
+        } else {
+          // Cancelación parcial
+          ventaOrig.totalPiezas -= totalPiezasDevueltas;
+          ventaOrig.totalDinero -= importeDevuelto;
+          itemsDevueltos.forEach(dev => {
+            const itOrig = ventaOrig.items.find(i => i.id === dev.id);
+            if (itOrig) itOrig.cantidad -= dev.cantidad;
+          });
+          ventaOrig.items = ventaOrig.items.filter(i => i.cantidad > 0);
+          ventaOrig.resumen = ventaOrig.items.map(c => `${c.cantidad}x ${c.sabor}`).join(', ');
+        }
+        localStorage.setItem('pd_ventas_dia', JSON.stringify(ventasDelDia));
+      }
+
+      // 3. Si era fiado, ajustar la deuda
+      const deuda = cuentasPorCobrar.find(d => d.idVenta === ventaParaCancelar.id);
+      if (deuda) {
+        deuda.saldo = Math.max(0, deuda.saldo - importeDevuelto);
+        if (deuda.saldo === 0) {
+          cuentasPorCobrar = cuentasPorCobrar.filter(d => d.idVenta !== ventaParaCancelar.id);
+        }
+        localStorage.setItem('pd_cuentas_cobrar', JSON.stringify(cuentasPorCobrar));
+      }
+
+      // 4. Enviar cancelación a Google Sheets
+      enviarVentaAGoogleSheets({
+        action: 'cancelarVenta',
+        cancelacion: {
+          folio: ventaParaCancelar.folio,
+          tipo: totalPiezasDevueltas >= ventaParaCancelar.totalPiezas ? 'Total' : 'Parcial',
+          destino: destinoCancelacion,
+          piezasCanceladas: totalPiezasDevueltas,
+          importeAjustado: importeDevuelto,
+          itemsDevueltos: itemsDevueltos,
+          motivo: motivo
+        }
+      });
+
+      setTimeout(() => {
+        cerrarModales();
+        renderizarPOS();
+        actualizarBarraCarrito();
+        alert(`✅ Pedido ${ventaParaCancelar.folio} actualizado. ${destinoCancelacion === 'Reingreso' ? 'Paletas reingresadas al inventario.' : 'Registrado como merma.'}`);
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        btnText.textContent = 'Confirmar Cancelación';
+        guardando = false;
+        ventaParaCancelar = null;
+      }, 350);
+    }
+
+    // =========================================================================
+    // FILTROS Y BÚSQUEDA
+    // =========================================================================
+    function seleccionarCat(btn) {
+      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      categoriaActiva = btn.dataset.cat;
+      renderizarPOS();
+    }
+
+    function filtrarSabores() {
+      busqueda = document.getElementById('searchPosInput').value.toLowerCase().trim();
+      renderizarPOS();
+    }
+
+    function cerrarModales() {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden'));
+    }
+
+    function mostrarAvisoRapido(texto) {
+      const toast = document.createElement('div');
+      toast.textContent = texto;
+      toast.style.position = 'fixed';
+      toast.style.top = '16px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = '#881337';
+      toast.style.color = '#FFFFFF';
+      toast.style.padding = '8px 16px';
+      toast.style.borderRadius = '20px';
+      toast.style.fontWeight = '800';
+      toast.style.fontSize = '0.88rem';
+      toast.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+      toast.style.zIndex = '3000';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2400);
+    }
+
+    // =========================================================================
+    // SINCRONIZACIÓN CON GOOGLE SHEETS
+    // =========================================================================
+    async function sincronizarConGoogleSheets(silencioso = false) {
+      if (!APPS_SCRIPT_URL) return;
+      const textEl = document.getElementById('syncTextPos');
+      if (!silencioso && textEl) textEl.textContent = '🔄 Conectando...';
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getInventario`);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.inventario)) {
+          let huboCambios = false;
+          data.inventario.forEach(serv => {
+            const loc = inventario.find(i => i.id === serv.id);
+            if (loc) {
+              if (loc.stock !== serv.stock || loc.precio !== serv.precio || loc.categoria !== serv.categoria || loc.sabor !== serv.sabor) {
+                loc.stock = serv.stock;
+                loc.precio = serv.precio;
+                loc.categoria = serv.categoria;
+                loc.sabor = serv.sabor;
+                if (serv.emoji) loc.emoji = serv.emoji;
+                huboCambios = true;
+              }
+            } else {
+              inventario.push(serv);
+              huboCambios = true;
+            }
+          });
+          if (huboCambios) {
+            renderizarPOS();
+            actualizarBarraCarrito();
+          }
+          const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          if (textEl) textEl.textContent = `🟢 En vivo (${hora})`;
+        }
+      } catch (err) {
+        if (!silencioso && textEl) textEl.textContent = '🟡 Modo Local';
+      }
+    }
+
+    async function enviarVentaAGoogleSheets(payload) {
+      if (!APPS_SCRIPT_URL) return;
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Error al enviar a Google Sheets:', err);
+      }
+    }
+
+    // Iniciar
+    renderizarPOS();
+    actualizarBarraCarrito();
+    sincronizarConGoogleSheets(false);
+    setInterval(() => {
+      if (!guardando) sincronizarConGoogleSheets(true);
+    }, 6000);
+  </script>
+</body>
+</html>
