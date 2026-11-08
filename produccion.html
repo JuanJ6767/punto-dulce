@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🌸 Paletería Punto Dulce - Control de Producción</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Punto Dulce">
+  <meta name="theme-color" content="#E11D74">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%23E11D74'/%3E%3Ctext y='68' x='50' font-size='55' text-anchor='middle'%3E🍧%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E🍧%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -58,6 +66,12 @@
       padding: 5px 10px; border-radius: var(--radius-pill); background: #FFFFFF; color: var(--text-secondary);
       border: 1.5px solid #FBCFE8; cursor: pointer;
     }
+    .sound-toggle-btn {
+      min-width: 34px; height: 32px; border-radius: var(--radius-pill); border: 1.5px solid #FBCFE8;
+      background: #FFFFFF; font-size: 1rem; cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .sound-toggle-btn:active { transform: scale(0.92); }
     .sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #10B981; }
     .header-title { font-size: 1.5rem; font-weight: 900; color: var(--text-main); line-height: 1.15; }
     .header-subtitle { font-size: 0.95rem; color: var(--text-secondary); font-weight: 700; margin-top: 3px; }
@@ -357,10 +371,15 @@
           <span>🍧</span>
           <span>Paletería Punto Dulce</span>
         </div>
-        <div class="sync-pill" onclick="abrirModalConfig()">
-          <span class="sync-dot"></span>
-          <span id="syncStatusText">🟢 En vivo (Demo)</span>
-          <span>⚙️</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="sound-toggle-btn" id="btnSoundToggle" onclick="toggleSonido()" title="Sonido activado (clic para silenciar)">
+            <span id="soundIcon">🔊</span>
+          </button>
+          <div class="sync-pill" onclick="abrirModalConfig()">
+            <span class="sync-dot"></span>
+            <span id="syncStatusText">🟢 En vivo (Demo)</span>
+            <span>⚙️</span>
+          </div>
         </div>
       </div>
 
@@ -369,7 +388,7 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1.5px dashed var(--pink-border);">
         <span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">📱 Cambiar interfaz:</span>
-        <a href="preview_ventas.html" style="background:#E11D74; color:#FFFFFF; text-decoration:none; padding:5px 12px; border-radius:9999px; font-size:0.82rem; font-weight:900; box-shadow:0 3px 8px rgba(225,29,116,0.25);">🛍️ Ir a Punto de Venta ➔</a>
+        <a id="linkToVentas" href="ventas.html" onclick="if(location.pathname.includes('preview_')) this.href='preview_ventas.html';" style="background:#E11D74; color:#FFFFFF; text-decoration:none; padding:5px 12px; border-radius:9999px; font-size:0.82rem; font-weight:900; box-shadow:0 3px 8px rgba(225,29,116,0.25);">🛍️ Ir a Punto de Venta ➔</a>
       </div>
 
       <div class="summary-grid">
@@ -720,6 +739,72 @@
     let undoTimer = null;
     let pendienteConfirmacion = null;
     let guardando = false;
+    let sonidoHabilitado = localStorage.getItem('pd_sonido_habilitado') !== 'false';
+
+    // =========================================================================
+    // EFECTO DE SONIDO SUTIL DE PRODUCCIÓN (WEB AUDIO API)
+    // =========================================================================
+    function toggleSonido() {
+      sonidoHabilitado = !sonidoHabilitado;
+      localStorage.setItem('pd_sonido_habilitado', String(sonidoHabilitado));
+      actualizarBotonSonido();
+      if (sonidoHabilitado) {
+        reproducirSonidoProduccion();
+      }
+    }
+
+    function actualizarBotonSonido() {
+      const btn = document.getElementById('btnSoundToggle');
+      const icon = document.getElementById('soundIcon');
+      if (!btn || !icon) return;
+      if (sonidoHabilitado) {
+        btn.classList.remove('muted');
+        btn.title = 'Sonido de producción activado (toca para silenciar)';
+        icon.textContent = '🔊';
+      } else {
+        btn.classList.add('muted');
+        btn.title = 'Sonido silenciado (toca para activar)';
+        icon.textContent = '🔇';
+      }
+    }
+
+    function reproducirSonidoProduccion() {
+      if (!sonidoHabilitado) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        const now = ctx.currentTime;
+        
+        // Acorde dulce de lote registrado (F#5 -> A#5)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(739.99, now);
+        gain1.gain.setValueAtTime(0.2, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.32);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(932.33, now + 0.09);
+        gain2.gain.setValueAtTime(0.22, now + 0.09);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.09);
+        osc2.stop(now + 0.52);
+      } catch (e) {
+        console.warn('Audio no disponible:', e);
+      }
+    }
 
     function renderizar() {
       // 1. Resumen
@@ -1037,6 +1122,7 @@
       ultimoMovimiento = mov;
 
       renderizar();
+      reproducirSonidoProduccion();
       mostrarUndo(mov);
 
       const idMov = 'MOV-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
@@ -1425,6 +1511,7 @@
 
     // Inicializar con sincronización en tiempo real
     renderizar();
+    actualizarBotonSonido();
     sincronizarConGoogleSheets(false);
     setInterval(() => {
       if (!guardando) sincronizarConGoogleSheets(true);

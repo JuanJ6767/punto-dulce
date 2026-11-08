@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🌸 Punto Dulce - Punto de Venta (POS)</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Punto Dulce">
+  <meta name="theme-color" content="#E11D74">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%23E11D74'/%3E%3Ctext y='68' x='50' font-size='55' text-anchor='middle'%3E🍧%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E🍧%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -89,7 +97,37 @@
       position: absolute; top: -5px; right: -4px; background: var(--red-alert);
       color: #FFFFFF; border-radius: 10px; padding: 1px 6px; font-size: 0.72rem;
       font-weight: 900; box-shadow: 0 2px 5px rgba(225,29,72,0.4);
+    .sound-toggle-btn {
+      min-width: 34px; height: 32px; border-radius: var(--radius-pill); border: 1.5px solid #FBCFE8;
+      background: #FFFFFF; font-size: 1rem; cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center; transition: all 0.2s;
     }
+    .sound-toggle-btn:active { transform: scale(0.92); }
+
+    .resurtido-alert-banner {
+      background: linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%);
+      border: 1.5px solid #FDA4AF;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.08);
+      animation: pulseAlert 2.5s infinite;
+    }
+    @keyframes pulseAlert {
+      0%, 100% { border-color: #FDA4AF; }
+      50% { border-color: #E11D48; }
+    }
+    .btn-solicitar-resurtido {
+      background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+      color: #FFFFFF; border: none; border-radius: 10px; padding: 7px 12px;
+      font-family: inherit; font-size: 0.82rem; font-weight: 900; cursor: pointer;
+      white-space: nowrap; box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
+    }
+    .btn-solicitar-resurtido:active { transform: scale(0.95); }
 
     /* ESTILOS DEL DASHBOARD HISTÓRICO */
     .dash-ranking-row {
@@ -354,10 +392,14 @@
           <span>🍧</span>
           <span>Paletería Punto Dulce</span>
         </div>
-        <div class="sync-pill" onclick="sincronizarConGoogleSheets(false)">
-          <span class="sync-dot" id="syncDotPos"></span>
-          <span id="syncTextPos">🟢 En vivo</span>
-          <span>💰</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="sound-toggle-btn" id="btnSoundToggle" onclick="toggleSonido()" title="Sonido activado (clic para silenciar)">
+            <span id="soundIcon">🔊</span>
+          </button>
+          <div class="sync-pill" onclick="sincronizarConGoogleSheets(false)">
+            <span class="sync-dot" id="syncDotPos"></span>
+            <span id="syncTextPos">🟢 En vivo</span>
+          </div>
         </div>
       </div>
 
@@ -396,9 +438,23 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed var(--pink-border);">
         <span style="font-size:0.78rem; font-weight:800; color:var(--text-secondary);">📱 Módulo de Ventas:</span>
-        <a href="preview_produccion.html" style="background:#FFE4EE; color:#881337; border:1.5px solid #F472B6; text-decoration:none; padding:4px 10px; border-radius:9999px; font-size:0.78rem; font-weight:900;">🏭 Ir a Producción ➔</a>
+        <a id="linkToProduccion" href="produccion.html" onclick="if(location.pathname.includes('preview_')) this.href='preview_produccion.html';" style="background:#FFE4EE; color:#881337; border:1.5px solid #F472B6; text-decoration:none; padding:4px 10px; border-radius:9999px; font-size:0.78rem; font-weight:900;">🏭 Ir a Producción ➔</a>
       </div>
     </header>
+
+    <!-- BANNER DINÁMICO DE ALERTA DE RESURTIDO (STOCK CRÍTICO) -->
+    <div id="bannerResurtidoAlerta" class="resurtido-alert-banner hidden">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.4rem;">🚨</span>
+        <div>
+          <strong style="font-size: 0.86rem; color: #9F1239; display: block;">¡Sabores por agotarse en mostrador!</strong>
+          <span style="font-size: 0.76rem; color: #BE123C;" id="txtResurtidoDetalle">Sabores en nivel crítico</span>
+        </div>
+      </div>
+      <button class="btn-solicitar-resurtido" onclick="enviarSolicitudResurtidoWhatsApp()">
+        <span>📲 Pedir Resurtido</span>
+      </button>
+    </div>
 
     <!-- BUSCADOR -->
     <div class="search-box-wrap">
@@ -406,11 +462,13 @@
       <input type="text" id="searchPosInput" class="search-input-large" placeholder="Buscar sabor (Oreo, Limón, Cacahuate)..." oninput="filtrarSabores()">
     </div>
 
-    <!-- PESTAÑAS -->
+    <!-- PESTAÑAS (CATEGORÍAS Y PRECIOS RÁPIDOS) -->
     <div class="category-tabs">
-      <button class="cat-tab active" data-cat="Todas" onclick="seleccionarCat(this)">🍧 Todos</button>
-      <button class="cat-tab" data-cat="Agua" onclick="seleccionarCat(this)">💧 De Agua</button>
-      <button class="cat-tab" data-cat="Leche" onclick="seleccionarCat(this)">🥛 De Leche</button>
+      <button class="cat-tab active" data-filter-type="cat" data-filter-val="Todas" onclick="seleccionarFiltro('cat', 'Todas', this)">🍧 Todos</button>
+      <button class="cat-tab" data-filter-type="precio" data-filter-val="15" onclick="seleccionarFiltro('precio', 15, this)">🏷️ $15 Clásicas</button>
+      <button class="cat-tab" data-filter-type="precio" data-filter-val="18" onclick="seleccionarFiltro('precio', 18, this)">⭐ $18 Gourmet</button>
+      <button class="cat-tab" data-filter-type="cat" data-filter-val="Agua" onclick="seleccionarFiltro('cat', 'Agua', this)">💧 De Agua</button>
+      <button class="cat-tab" data-filter-type="cat" data-filter-val="Leche" onclick="seleccionarFiltro('cat', 'Leche', this)">🥛 De Leche</button>
     </div>
 
     <!-- CATÁLOGO POS -->
@@ -558,10 +616,16 @@
         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; border-top: 1px solid #DCFCE7; padding-top: 4px;" id="ticketResumen"></div>
       </div>
 
-      <!-- BOTÓN DIRECTO DE WHATSAPP AL GRUPO / CONTACTO -->
+      <!-- BOTÓN DIRECTO DE WHATSAPP AL ÁREA DE SURTIDO -->
       <a id="btnWhatsAppSurtido" href="#" target="_blank" class="btn-whatsapp" style="margin-bottom: 8px;">
         <span style="font-size: 1.2rem;">📲</span>
-        <span>Enviar Pedido por WhatsApp</span>
+        <span>Enviar a Surtido (Taller)</span>
+      </a>
+
+      <!-- BOTÓN COMPROBANTE AL CLIENTE POR WHATSAPP -->
+      <a id="btnWhatsAppCliente" href="#" target="_blank" class="btn-whatsapp" style="margin-bottom: 8px; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);">
+        <span style="font-size: 1.2rem;">🧾</span>
+        <span>Enviar Ticket al Cliente</span>
       </a>
 
       <button class="btn-confirm" style="width: 100%; min-height: 44px;" onclick="cerrarModales()">
@@ -820,13 +884,15 @@
 
     // Variables reactivas
     let carrito = []; // { id, sabor, precio, emoji, cantidad }
-    let categoriaActiva = 'Todas';
+    let tipoFiltroActivo = 'cat'; // 'cat' o 'precio'
+    let valorFiltroActivo = 'Todas';
     let busqueda = '';
     let guardando = false; // Bandera de blindaje anti-doble clic
     let metodoPagoActual = 'Efectivo';
     let dineroRecibido = 0;
     let destinoCancelacion = 'Reingreso';
     let ventaParaCancelar = null;
+    let sonidoHabilitado = localStorage.getItem('pd_sonido_habilitado') !== 'false';
 
     // Persistencia local en LocalStorage
     let consecutivoFolio = Number(localStorage.getItem('pd_folio_consecutivo') || 1);
@@ -842,9 +908,14 @@
     function renderizarPOS() {
       const grid = document.getElementById('posGrid');
       const filtrados = inventario.filter(item => {
-        const coincideCat = categoriaActiva === 'Todas' || item.categoria === categoriaActiva;
+        let coincideFiltro = true;
+        if (tipoFiltroActivo === 'cat') {
+          coincideFiltro = valorFiltroActivo === 'Todas' || item.categoria === valorFiltroActivo;
+        } else if (tipoFiltroActivo === 'precio') {
+          coincideFiltro = item.precio === Number(valorFiltroActivo);
+        }
         const coincideBusqueda = !busqueda || item.sabor.toLowerCase().includes(busqueda);
-        return coincideCat && coincideBusqueda;
+        return coincideFiltro && coincideBusqueda;
       });
 
       if (filtrados.length === 0) {
@@ -1319,6 +1390,8 @@
         carrito = [];
         renderizarPOS();
         actualizarBarraCarrito();
+        verificarStockCritico();
+        reproducirSonidoCobro();
         cerrarModales();
 
         document.getElementById('ticketFolioExito').textContent = venta.folio;
@@ -1368,6 +1441,74 @@
 
       const encoded = encodeURI(mensaje);
       document.getElementById('btnWhatsAppSurtido').href = `https://api.whatsapp.com/send?text=${encoded}`;
+
+      // Configurar enlace de ticket digital para el cliente
+      const msgCliente = generarMensajeTicketCliente(venta);
+      document.getElementById('btnWhatsAppCliente').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(msgCliente)}`;
+    }
+
+    function generarMensajeTicketCliente(venta) {
+      let msg = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      msg += `🧾 *COMPROBANTE DE COMPRA ${venta.folio || ''}*\n`;
+      msg += `📅 *Fecha:* ${venta.fecha || new Date().toLocaleDateString()} - ${venta.hora || ''}\n`;
+      if (venta.deudor && venta.deudor !== 'Compañero') {
+        msg += `👤 *Cliente:* ${venta.deudor}\n`;
+      }
+      msg += `----------------------------------\n`;
+      msg += `🧊 *DETALLE DE TU PEDIDO:*\n`;
+      if (Array.isArray(venta.items)) {
+        venta.items.forEach(it => {
+          const emoji = it.emoji || '🍧';
+          const sub = (it.cantidad || 1) * (it.precio || 15);
+          msg += `• ${it.cantidad}x ${emoji} ${it.sabor} ($${sub}.00)\n`;
+        });
+      }
+      msg += `----------------------------------\n`;
+      msg += `📦 *Total piezas:* ${venta.totalPiezas || 0} paleta${venta.totalPiezas === 1 ? '' : 's'}\n`;
+      msg += `💰 *TOTAL A PAGAR:* *$${venta.totalDinero}.00*\n`;
+      msg += `💳 *Método de pago:* ${venta.metodoPago}\n`;
+
+      if (venta.metodoPago === 'Fiado') {
+        msg += `💵 *Abono realizado hoy:* $${venta.abonoInicial || 0}.00\n`;
+        msg += `⚠️ *SALDO PENDIENTE:* *$${venta.saldoDeudor || 0}.00*\n`;
+      } else if (venta.cambio && Number(venta.cambio) > 0) {
+        msg += `💵 *Cambio entregado:* $${venta.cambio}.00\n`;
+      }
+
+      msg += `----------------------------------\n`;
+      msg += `✨ _¡Muchas gracias por tu compra!_ 🍧\n`;
+      msg += `_Paletería Punto Dulce_`;
+      return msg;
+    }
+
+    function compartirTicketCliente(idVenta) {
+      const v = ventasDelDia.find(x => x.id === idVenta) || ventasHistorico.find(x => x.id === idVenta);
+      if (!v) {
+        mostrarAvisoRapido('No se encontró el ticket');
+        return;
+      }
+      const msg = generarMensajeTicketCliente(v);
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function compartirRecordatorioDeuda(idx) {
+      const d = cuentasPorCobrar[idx];
+      if (!d) return;
+      let msg = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      msg += `📋 *ESTADO DE CUENTA / RECORDATORIO*\n`;
+      msg += `📅 *Fecha:* ${new Date().toLocaleDateString()}\n`;
+      msg += `👤 *Compañero(a):* *${d.deudor}*\n`;
+      msg += `----------------------------------\n`;
+      msg += `🧾 *Folio original:* ${d.folio || '#PD'}\n`;
+      msg += `🍧 *Consumo:* ${d.resumen || 'Paletas'}\n`;
+      msg += `💰 *Total de compra:* $${d.total}.00\n`;
+      msg += `📥 *Abonos recibidos:* $${d.abono}.00\n`;
+      msg += `----------------------------------\n`;
+      msg += `⚠️ *SALDO PENDIENTE ACTUAL:* *$${d.saldo}.00*\n`;
+      msg += `----------------------------------\n`;
+      msg += `✨ _Agradecemos tu apoyo para mantener tu cuenta al corriente._ 🍧\n`;
+      msg += `_Paletería Punto Dulce_`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function abrirModalSurtido() {
@@ -1504,6 +1645,9 @@
               <button class="btn-confirm" style="min-height:34px; padding:2px 8px; font-size:0.8rem; background:#16A34A;" onclick="registrarAbonoPrompt(${idx}, true)">
                 ✅ Liquidar Todo ($${d.saldo})
               </button>
+              <button class="btn-cancel" style="min-height:34px; padding:2px 8px; font-size:0.8rem; color:#0284C7; border-color:#BAE6FD;" onclick="compartirRecordatorioDeuda(${idx})" title="Enviar estado de cuenta al compañero">
+                🧾 WhatsApp
+              </button>
             </div>
           </div>
         `).join('');
@@ -1607,7 +1751,10 @@
               <span style="color:var(--text-muted);font-size:0.75rem;">${v.hora}</span>
             </div>
             <div style="color:var(--text-secondary);margin:4px 0;font-size:0.82rem;">${v.resumen}</div>
-            <div style="display:flex;justify-content:flex-end;">
+            <div style="display:flex;justify-content:flex-end;gap:6px;">
+              <button class="btn-cancel" style="min-height:30px;padding:2px 8px;font-size:0.75rem;color:#0284C7;border-color:#BAE6FD;" onclick="compartirTicketCliente('${v.id}')">
+                🧾 Ticket Cliente
+              </button>
               <button class="btn-cancel" style="min-height:30px;padding:2px 8px;font-size:0.75rem;color:#E11D48;border-color:#FECDD3;" onclick="abrirModalCancelarVenta('${v.id}')">
                 ↩️ Cancelar / Devolver
               </button>
@@ -1769,11 +1916,146 @@
     // =========================================================================
     // FILTROS Y BÚSQUEDA
     // =========================================================================
-    function seleccionarCat(btn) {
-      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      categoriaActiva = btn.dataset.cat;
+    function seleccionarFiltro(tipo, val, btn) {
+      document.querySelectorAll('.cat-tabs .cat-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      tipoFiltroActivo = tipo;
+      valorFiltroActivo = val;
       renderizarPOS();
+    }
+
+    function seleccionarCat(btn) {
+      seleccionarFiltro('cat', btn.dataset.cat || 'Todas', btn);
+    }
+
+    // =========================================================================
+    // ALERTA Y SOLICITUD DE RESURTIDO (STOCK CRÍTICO)
+    // =========================================================================
+    function verificarStockCritico() {
+      const banner = document.getElementById('bannerResurtidoAlerta');
+      const txt = document.getElementById('txtResurtidoDetalle');
+      if (!banner || !txt) return;
+
+      const criticos = inventario.filter(i => Number(i.stock || 0) <= 2);
+      if (criticos.length > 0) {
+        banner.classList.remove('hidden');
+        const nombres = criticos.slice(0, 3).map(c => `${c.sabor} (${c.stock})`).join(', ');
+        const extra = criticos.length > 3 ? ` y ${criticos.length - 3} más` : '';
+        txt.textContent = `${criticos.length} sabor(es) en 0 o ≤ 2 piezas: ${nombres}${extra}`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function enviarSolicitudResurtidoWhatsApp() {
+      const criticos = inventario.filter(i => Number(i.stock || 0) <= 2);
+      if (criticos.length === 0) {
+        mostrarAvisoRapido('¡Todos los sabores tienen buen nivel de stock!');
+        return;
+      }
+
+      const ahora = new Date();
+      const fecha = ahora.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const hora = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      let msg = `🚨 *SOLICITUD DE RESURTIDO URGENTE* 🍧\n`;
+      msg += `📍 *Paletería Punto Dulce - Mostrador*\n`;
+      msg += `📅 *Fecha:* ${fecha} - ${hora}\n`;
+      msg += `----------------------------------\n`;
+      msg += `Se requiere resurtir los siguientes sabores con stock crítico:\n\n`;
+
+      criticos.forEach(it => {
+        const emoji = it.emoji || '🍧';
+        const st = Number(it.stock || 0);
+        const min = it.stockMinimo || 3;
+        const alerta = st === 0 ? '❌ AGOTADO (0 pzas)' : `⚠️ Solo ${st} pza${st === 1 ? '' : 's'}`;
+        msg += `• ${emoji} *${it.sabor}*: ${alerta} (Mínimo sugerido: ${min})\n`;
+      });
+
+      msg += `----------------------------------\n`;
+      msg += `📦 *Total de sabores a resurtir:* ${criticos.length}\n`;
+      msg += `❄️ Favor de pasar paletas del congelador de reserva/taller al mostrador. ¡Gracias! ✨`;
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    // =========================================================================
+    // EFECTO DE SONIDO SUTIL DE COBRO (WEB AUDIO API)
+    // =========================================================================
+    function toggleSonido() {
+      sonidoHabilitado = !sonidoHabilitado;
+      localStorage.setItem('pd_sonido_habilitado', String(sonidoHabilitado));
+      actualizarBotonSonido();
+      if (sonidoHabilitado) {
+        reproducirSonidoCobro();
+      }
+    }
+
+    function actualizarBotonSonido() {
+      const btn = document.getElementById('btnSoundToggle');
+      const icon = document.getElementById('soundIcon');
+      if (!btn || !icon) return;
+      if (sonidoHabilitado) {
+        btn.classList.remove('muted');
+        btn.title = 'Sonido de cobro activado (toca para silenciar)';
+        icon.textContent = '🔊';
+      } else {
+        btn.classList.add('muted');
+        btn.title = 'Sonido silenciado (toca para activar)';
+        icon.textContent = '🔇';
+      }
+    }
+
+    function reproducirSonidoCobro() {
+      if (!sonidoHabilitado) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        
+        const now = ctx.currentTime;
+        
+        // Campanilla 1 (E5)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(659.25, now);
+        gain1.gain.setValueAtTime(0.2, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.3);
+
+        // Campanilla 2 (B5)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(987.77, now + 0.09);
+        gain2.gain.setValueAtTime(0.25, now + 0.09);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.09);
+        osc2.stop(now + 0.45);
+
+        // Chime brillante (E6)
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'triangle';
+        osc3.frequency.setValueAtTime(1318.51, now + 0.18);
+        gain3.gain.setValueAtTime(0.2, now + 0.18);
+        gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.start(now + 0.18);
+        osc3.stop(now + 0.62);
+      } catch (e) {
+        console.warn('Audio no disponible o bloqueado:', e);
+      }
     }
 
     function filtrarSabores() {
@@ -1836,6 +2118,7 @@
           if (huboCambios) {
             renderizarPOS();
             actualizarBarraCarrito();
+            verificarStockCritico();
           }
           const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           if (textEl) textEl.textContent = `🟢 En vivo (${hora})`;
@@ -2061,6 +2344,8 @@
     // Iniciar
     renderizarPOS();
     actualizarBarraCarrito();
+    actualizarBotonSonido();
+    verificarStockCritico();
     sincronizarConGoogleSheets(false);
     setInterval(() => {
       if (!guardando) sincronizarConGoogleSheets(true);
