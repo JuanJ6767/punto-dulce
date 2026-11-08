@@ -16,6 +16,8 @@ function doGet(e) {
       return obtenerInventario(ss);
     } else if (action === 'getCuentasPorCobrar') {
       return obtenerCuentasPorCobrar(ss);
+    } else if (action === 'getEstadisticas') {
+      return obtenerEstadisticas(ss);
     } else if (action === 'ping') {
       return respuestaJson({ ok: true, mensaje: 'Punto Dulce API activa' });
     }
@@ -174,6 +176,36 @@ function registrarVenta(ss, venta) {
     venta.notas || '',
     venta.idVenta || ('VEN-' + Date.now())
   ]);
+
+  // Registrar desglose por sabor en Ventas_Detalle para el Dashboard
+  try {
+    const sheetDetalle = ss.getSheetByName('Ventas_Detalle') || ss.insertSheet('Ventas_Detalle');
+    if (sheetDetalle.getLastRow() === 0) {
+      sheetDetalle.appendRow(['Fecha', 'Hora', 'Folio', 'ID_Sabor', 'Sabor', 'Categoria', 'Cantidad', 'Precio_Unitario', 'Subtotal', 'Metodo_Pago']);
+    }
+    if (Array.isArray(venta.items)) {
+      const fechaStr = Utilities.formatDate(now, ss.getSpreadsheetTimeZone() || 'GMT-6', 'yyyy-MM-dd');
+      const horaStr = Utilities.formatDate(now, ss.getSpreadsheetTimeZone() || 'GMT-6', 'HH:mm:ss');
+      venta.items.forEach(function(item) {
+        const cant = Number(item.cantidad) || 0;
+        const prec = Number(item.precio) || 0;
+        sheetDetalle.appendRow([
+          fechaStr,
+          horaStr,
+          venta.folio || ('#PD-' + Date.now().toString().slice(-4)),
+          item.id,
+          item.sabor,
+          item.categoria || '',
+          cant,
+          prec,
+          cant * prec,
+          venta.metodoPago || 'Efectivo'
+        ]);
+      });
+    }
+  } catch (errDetalle) {
+    console.warn('Error al guardar en Ventas_Detalle:', errDetalle);
+  }
 
   // Si quedó a deber, registrar en pestaña "Cuentas_Por_Cobrar"
   if (venta.metodoPago === 'Fiado' && saldo > 0) {
@@ -462,6 +494,52 @@ function guardarSabor(ss, item) {
   }
 
   return { ok: true };
+}
+
+/**
+ * Obtiene el análisis y dashboard histórico de demanda y sugerencias de stock
+ */
+function obtenerEstadisticas(ss) {
+  const sheetDash = ss.getSheetByName('Dashboard_Historico');
+  if (!sheetDash) {
+    return respuestaJson({ ok: false, error: 'Dashboard no inicializado' });
+  }
+
+  const values = sheetDash.getDataRange().getValues();
+  const sabores = [];
+
+  for (let r = 3; r < values.length; r++) {
+    const row = values[r];
+    if (!row[0]) continue;
+    sabores.push({
+      id: String(row[0]),
+      sabor: String(row[1]),
+      categoria: String(row[2]),
+      stockActual: Number(row[3]) || 0,
+      minActual: Number(row[4]) || 0,
+      maxActual: Number(row[5]) || 0,
+      ventasSemana: Number(row[6]) || 0,
+      ventasMes: Number(row[7]) || 0,
+      ventasTrimestre: Number(row[8]) || 0,
+      ventasTotales: Number(row[9]) || 0,
+      minSugerido: Number(row[10]) || Number(row[4]) || 3,
+      maxSugerido: Number(row[11]) || Number(row[5]) || 20,
+      nivelDemanda: String(row[12] || 'Demanda Estable')
+    });
+  }
+
+  // Ordenar por ventas totales
+  sabores.sort(function(a, b) { return b.ventasTotales - a.ventasTotales; });
+
+  return respuestaJson({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    estadisticas: {
+      sabores: sabores,
+      totalPaletasVendidas: sabores.reduce(function(s, x) { return s + x.ventasTotales; }, 0),
+      topSabor: sabores.length > 0 ? sabores[0].sabor : 'N/A'
+    }
+  });
 }
 
 function respuestaJson(obj) {

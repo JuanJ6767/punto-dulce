@@ -71,8 +71,8 @@
     /* BOTONES RÁPIDOS SUPERIORES */
     .header-quick-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
       margin-top: 10px;
       padding-top: 8px;
       border-top: 1.5px dashed var(--pink-border);
@@ -80,8 +80,8 @@
     .btn-quick-nav {
       min-height: 38px; border-radius: 12px; border: 1.5px solid #FBCFE8;
       background: #FFFFFF; color: var(--text-secondary); font-family: inherit;
-      font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex;
-      align-items: center; justify-content: center; gap: 4px; padding: 4px 6px;
+      font-size: 0.78rem; font-weight: 800; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; gap: 4px; padding: 4px 4px;
       position: relative;
     }
     .btn-quick-nav:active { background: #FFF0F6; border-color: var(--pink-primary); }
@@ -90,6 +90,39 @@
       color: #FFFFFF; border-radius: 10px; padding: 1px 6px; font-size: 0.72rem;
       font-weight: 900; box-shadow: 0 2px 5px rgba(225,29,72,0.4);
     }
+
+    /* ESTILOS DEL DASHBOARD HISTÓRICO */
+    .dash-ranking-row {
+      background: #FFFFFF;
+      border: 1.5px solid #FBCFE8;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .dash-progress-track {
+      background: #FFE4EE;
+      height: 7px;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .dash-progress-fill {
+      background: linear-gradient(90deg, #E11D74, #F43F5E);
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+    .dash-tag-status {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .dash-tag-status.optimo { background: #DCFCE7; color: #166534; }
+    .dash-tag-status.ajustar { background: #FEF3C7; color: #92400E; }
+    .dash-tag-status.reducir { background: #F1F5F9; color: #475569; }
 
     /* BUSCADOR Y FILTROS */
     .search-box-wrap { position: relative; margin-bottom: 8px; }
@@ -343,7 +376,7 @@
       <div class="header-quick-actions">
         <button class="btn-quick-nav" onclick="abrirModalSurtido()">
           <span>📦</span>
-          <span>Surtir Pedidos</span>
+          <span>Surtir</span>
           <span class="quick-badge-alert hidden" id="badgeSurtirPendiente">0</span>
         </button>
         <button class="btn-quick-nav" onclick="abrirModalDeudores()">
@@ -353,7 +386,11 @@
         </button>
         <button class="btn-quick-nav" onclick="abrirModalCorte()">
           <span>📊</span>
-          <span>Corte y Tickets</span>
+          <span>Corte</span>
+        </button>
+        <button class="btn-quick-nav" onclick="abrirModalDashboard()">
+          <span>📈</span>
+          <span>Tendencias</span>
         </button>
       </div>
 
@@ -581,7 +618,14 @@
 
       <div style="max-height: 260px; overflow-y: auto;" id="listaDeudores"></div>
 
-      <div class="modal-actions" style="margin-top: 10px;">
+      <div style="margin-top: 10px;">
+        <a id="btnWhatsAppDeudores" href="#" target="_blank" class="btn-whatsapp" style="width: 100%;">
+          <span>📲</span>
+          <span>Enviar Reporte de Fiados por WhatsApp</span>
+        </a>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 8px;">
         <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Volver al Mostrador</button>
       </div>
     </div>
@@ -623,7 +667,14 @@
       <div style="font-weight: 800; font-size: 0.88rem; margin-bottom: 6px;">Historial de Tickets de Hoy:</div>
       <div style="max-height: 200px; overflow-y: auto;" id="corteVentasLista"></div>
 
-      <div class="modal-actions" style="margin-top: 10px;">
+      <div style="margin-top: 10px;">
+        <a id="btnWhatsAppCorte" href="#" target="_blank" class="btn-whatsapp" style="width: 100%;">
+          <span>📲</span>
+          <span>Enviar Corte de Caja por WhatsApp</span>
+        </a>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 8px;">
         <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Cerrar</button>
       </div>
     </div>
@@ -679,6 +730,61 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODAL 7: DASHBOARD DE RENDIMIENTO HISTÓRICO Y SUGERENCIAS DE STOCK        -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop hidden" id="modalDashboard">
+    <div class="modal-card" style="max-width: 500px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+        <h3 class="modal-title">📈 Rendimiento y Tendencias</h3>
+        <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
+      </div>
+      <p class="modal-subtitle">Demanda histórica de sabores y sugerencia inteligente de mínimos/máximos.</p>
+
+      <!-- PESTAÑAS DE PERIODO -->
+      <div class="category-tabs" style="margin: 8px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+        <button class="cat-tab active" data-period="semana" onclick="cambiarPeriodoDashboard('semana', this)" style="min-height: 34px; padding: 4px 6px; font-size: 0.78rem;">Semana (7d)</button>
+        <button class="cat-tab" data-period="mes" onclick="cambiarPeriodoDashboard('mes', this)" style="min-height: 34px; padding: 4px 6px; font-size: 0.78rem;">Mes (30d)</button>
+        <button class="cat-tab" data-period="trimestre" onclick="cambiarPeriodoDashboard('trimestre', this)" style="min-height: 34px; padding: 4px 6px; font-size: 0.78rem;">Trimestre (90d)</button>
+        <button class="cat-tab" data-period="total" onclick="cambiarPeriodoDashboard('total', this)" style="min-height: 34px; padding: 4px 6px; font-size: 0.78rem;">Todo</button>
+      </div>
+
+      <!-- TARJETAS KPI -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;">
+        <div style="background: #FFF0F6; border: 1.5px solid var(--pink-border); border-radius: 10px; padding: 6px 4px; text-align: center;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); display: block;">PALETAS VENDIDAS</span>
+          <strong style="font-size: 1.2rem; color: var(--pink-primary);" id="dashKpiTotalPaletas">0</strong>
+        </div>
+        <div style="background: #F0FDF4; border: 1.5px solid #86EFAC; border-radius: 10px; padding: 6px 4px; text-align: center;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: #15803D; display: block;">SABOR ESTRELLA #1</span>
+          <strong style="font-size: 0.88rem; color: #15803D; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" id="dashKpiTopSabor">-</strong>
+        </div>
+        <div style="background: #FEF3C7; border: 1.5px solid #FCD34D; border-radius: 10px; padding: 6px 4px; text-align: center;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: #92400E; display: block;">AJUSTES STOCK</span>
+          <strong style="font-size: 1.2rem; color: #92400E;" id="dashKpiAlertas">0</strong>
+        </div>
+      </div>
+
+      <!-- LISTA DE SABORES CON BARRA DE POPULARIDAD Y SUGERENCIA DE STOCK -->
+      <div style="font-size: 0.82rem; font-weight: 900; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span>Ranking de Sabores Solicitados</span>
+        <span style="color: var(--text-muted); font-weight: 700;">Piezas • Sugerencia</span>
+      </div>
+
+      <div style="max-height: 280px; overflow-y: auto;" id="listaRankingSabores"></div>
+
+      <!-- PANEL DE CONSEJO INTELIGENTE -->
+      <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 8px 10px; margin-top: 10px; font-size: 0.78rem; color: #1E40AF;">
+        💡 <strong>Recomendación para Producción:</strong>
+        <span id="dashConsejoTexto">Prioriza los sabores con alta demanda en los lotes semanales y ajusta sus stocks mínimos para evitar desabasto.</span>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 10px;">
+        <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- JAVASCRIPT: LÓGICA DEL POS, PERSISTENCIA, BLINDAJE Y WHATSAPP             -->
   <!-- ========================================================================= -->
   <script>
@@ -726,6 +832,9 @@
     let consecutivoFolio = Number(localStorage.getItem('pd_folio_consecutivo') || 1);
     let ventasDelDia = JSON.parse(localStorage.getItem('pd_ventas_dia') || '[]');
     let cuentasPorCobrar = JSON.parse(localStorage.getItem('pd_cuentas_cobrar') || '[]');
+    let ventasHistorico = JSON.parse(localStorage.getItem('pd_ventas_historico') || '[]');
+    let datosDashboardServidor = null;
+    let periodoDashboardActual = 'semana';
 
     // =========================================================================
     // RENDERIZADO DEL CATÁLOGO POS
@@ -1153,6 +1262,18 @@
       ventasDelDia.unshift(venta);
       localStorage.setItem('pd_ventas_dia', JSON.stringify(ventasDelDia));
 
+      // Guardar en histórico acumulado para tendencias
+      ventasHistorico.unshift({
+        id: venta.id,
+        folio: venta.folio,
+        timestamp: Date.now(),
+        fechaIso: new Date().toISOString(),
+        totalDinero: venta.totalDinero,
+        totalPiezas: venta.totalPiezas,
+        items: venta.items
+      });
+      localStorage.setItem('pd_ventas_historico', JSON.stringify(ventasHistorico));
+
       // Si fue fiado, guardar en cuentas por cobrar
       if (metodoPagoActual === 'Fiado' && saldoDeudor > 0) {
         cuentasPorCobrar.unshift({
@@ -1341,6 +1462,23 @@
       const totalDeuda = cuentasPorCobrar.reduce((sum, c) => sum + c.saldo, 0);
       document.getElementById('deudaGlobalTotal').textContent = `$${totalDeuda}`;
 
+      // Configurar enlace de WhatsApp para Reporte de Fiados
+      const fechaHoy = new Date().toLocaleDateString();
+      let msgFiados = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      msgFiados += `📝 *REPORTE DE CUENTAS POR COBRAR (FIADOS)*\n`;
+      msgFiados += `📅 ${fechaHoy}\n\n`;
+      if (cuentasPorCobrar.length === 0) {
+        msgFiados += `🎉 *¡No hay deudas pendientes! Todas las cuentas están al día.*\n`;
+      } else {
+        msgFiados += `👥 *DETALLE DE SALDOS PENDIENTES:*\n`;
+        cuentasPorCobrar.forEach(c => {
+          msgFiados += `• *${c.deudor}*: resta *$${c.saldo}* (${c.folio || '#PD'})\n`;
+        });
+        msgFiados += `--------------------------\n`;
+        msgFiados += `🔴 *TOTAL PENDIENTE POR COBRAR:* *$${totalDeuda}*\n`;
+      }
+      document.getElementById('btnWhatsAppDeudores').href = `https://api.whatsapp.com/send?text=${encodeURI(msgFiados)}`;
+
       if (cuentasPorCobrar.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">
           🎉 ¡Nadie te debe nada! Cuentas al corriente.
@@ -1435,6 +1573,27 @@
       document.getElementById('corteFiadoHoy').textContent = `$${fiadoHoy}`;
       document.getElementById('corteAbonosHoy').textContent = `$${abonosHoy}`;
       document.getElementById('corteDineroRealLiquidar').textContent = `$${liquidarReal}`;
+
+      // Configurar enlace de WhatsApp para el Corte de Caja
+      const fechaHoy = new Date().toLocaleDateString();
+      const horaHoy = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let msgCorte = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
+      msgCorte += `📊 *CORTE DE CAJA - CIERRE DE TURNO*\n`;
+      msgCorte += `📅 ${fechaHoy} - ${horaHoy}\n\n`;
+      msgCorte += `💵 *DESGLOSE DE INGRESOS:*\n`;
+      msgCorte += `• 🍧 Total paletas: *${totalP} piezas*\n`;
+      msgCorte += `• 💰 Venta total: *$${totalD}*\n`;
+      msgCorte += `• 💵 Efectivo en mano: *$${efec}*\n`;
+      msgCorte += `• 📱 Transferencias: *$${transf}*\n`;
+      msgCorte += `• 📥 Abonos cobrados hoy: *$${abonosHoy}*\n`;
+      msgCorte += `--------------------------\n`;
+      msgCorte += `✅ *DINERO NETO EN CAJA A ENTREGAR:* *$${liquidarReal}*\n`;
+      msgCorte += `--------------------------\n`;
+      if (fiadoHoy > 0) {
+        msgCorte += `📝 *Fiado pendiente de hoy:* $${fiadoHoy}\n`;
+      }
+      msgCorte += `📋 *Tickets emitidos:* ${ventasDelDia.length} ticket${ventasDelDia.length === 1 ? '' : 's'}\n`;
+      document.getElementById('btnWhatsAppCorte').href = `https://api.whatsapp.com/send?text=${encodeURI(msgCorte)}`;
 
       const list = document.getElementById('corteVentasLista');
       if (ventasDelDia.length === 0) {
@@ -1698,6 +1857,181 @@
       } catch (err) {
         console.warn('Error al enviar a Google Sheets:', err);
       }
+    }
+
+    // =========================================================================
+    // DASHBOARD HISTÓRICO: DEMANDA POR PERIODO Y SUGERENCIA DE STOCKS
+    // =========================================================================
+    function abrirModalDashboard() {
+      document.getElementById('modalDashboard').classList.remove('hidden');
+      cargarEstadisticasServidor();
+      renderizarContenidoDashboard();
+    }
+
+    function cambiarPeriodoDashboard(periodo, btn) {
+      periodoDashboardActual = periodo;
+      btn.parentElement.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderizarContenidoDashboard();
+    }
+
+    async function cargarEstadisticasServidor() {
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getEstadisticas`);
+        const data = await res.json();
+        if (data.ok && data.estadisticas && Array.isArray(data.estadisticas.sabores)) {
+          datosDashboardServidor = data.estadisticas.sabores;
+          renderizarContenidoDashboard();
+        }
+      } catch (err) {
+        console.warn('Usando cálculo local para el dashboard');
+      }
+    }
+
+    function renderizarContenidoDashboard() {
+      const container = document.getElementById('listaRankingSabores');
+      if (!container) return;
+      const now = Date.now();
+      let diasVentana = 7;
+      if (periodoDashboardActual === 'mes') diasVentana = 30;
+      else if (periodoDashboardActual === 'trimestre') diasVentana = 90;
+      else if (periodoDashboardActual === 'total') diasVentana = 9999;
+
+      const msVentana = diasVentana * 24 * 3600 * 1000;
+      const cutoff = now - msVentana;
+
+      // Calcular ventas por sabor
+      const conteoVentas = {};
+      inventario.forEach(it => { conteoVentas[it.id] = 0; });
+
+      // Sumar de ventas locales históricas
+      ventasHistorico.forEach(v => {
+        const t = v.timestamp || (v.fechaIso ? new Date(v.fechaIso).getTime() : now);
+        if (t >= cutoff && Array.isArray(v.items)) {
+          v.items.forEach(it => {
+            conteoVentas[it.id] = (conteoVentas[it.id] || 0) + Number(it.cantidad || 0);
+          });
+        }
+      });
+
+      // Sumar de ventas del día actual
+      ventasDelDia.forEach(v => {
+        if (Array.isArray(v.items)) {
+          v.items.forEach(it => {
+            if (!ventasHistorico.some(h => h.id === v.id)) {
+              conteoVentas[it.id] = (conteoVentas[it.id] || 0) + Number(it.cantidad || 0);
+            }
+          });
+        }
+      });
+
+      // Si hay datos del servidor, incorporar valores de la hoja de cálculo
+      if (datosDashboardServidor) {
+        datosDashboardServidor.forEach(s => {
+          let vServ = 0;
+          if (periodoDashboardActual === 'semana') vServ = s.ventasSemana;
+          else if (periodoDashboardActual === 'mes') vServ = s.ventasMes;
+          else if (periodoDashboardActual === 'trimestre') vServ = s.ventasTrimestre;
+          else vServ = s.ventasTotales;
+          conteoVentas[s.id] = Math.max(conteoVentas[s.id] || 0, vServ);
+        });
+      }
+
+      // Preparar lista con datos de inventario
+      const lista = inventario.map(it => {
+        const vendidas = conteoVentas[it.id] || 0;
+        const minActual = it.stockMinimo || 3;
+        const maxActual = it.stockMaximo || 20;
+
+        // Sugerencia dinámica según demanda del periodo
+        let minSugerido = minActual;
+        let maxSugerido = maxActual;
+        let demanda = 'Demanda Estable';
+        let statusClass = 'optimo';
+        let statusBadge = 'Balance Óptimo';
+
+        if (vendidas >= (periodoDashboardActual === 'semana' ? 8 : periodoDashboardActual === 'mes' ? 20 : 40)) {
+          demanda = '🌟 Alta Demanda';
+          minSugerido = Math.max(minActual, Math.round(vendidas * 0.4) + 2);
+          maxSugerido = Math.max(maxActual, Math.round(vendidas * 1.2) + 5);
+          if (minActual < minSugerido) {
+            statusClass = 'ajustar';
+            statusBadge = `⚠️ Subir Mín a ${minSugerido}`;
+          }
+        } else if (vendidas === 0 && it.stock > 12) {
+          demanda = '🐢 Baja Rotación';
+          statusClass = 'reducir';
+          statusBadge = `💡 Reducir Máx a 10`;
+          maxSugerido = 10;
+        }
+
+        return {
+          id: it.id,
+          sabor: it.sabor,
+          emoji: it.emoji || '🍧',
+          categoria: it.categoria,
+          stock: it.stock,
+          minActual,
+          maxActual,
+          minSugerido,
+          maxSugerido,
+          vendidas,
+          demanda,
+          statusClass,
+          statusBadge
+        };
+      });
+
+      // Ordenar por más vendidos primero
+      lista.sort((a, b) => b.vendidas - a.vendidas);
+
+      const totalPaletas = lista.reduce((s, x) => s + x.vendidas, 0);
+      const maxVendidas = lista.length > 0 && lista[0].vendidas > 0 ? lista[0].vendidas : 1;
+      const topSabor = lista.length > 0 && lista[0].vendidas > 0 ? `${lista[0].emoji} ${lista[0].sabor}` : 'Sin ventas aún';
+      const alertasAjuste = lista.filter(x => x.statusClass === 'ajustar').length;
+
+      // Actualizar KPIs
+      document.getElementById('dashKpiTotalPaletas').textContent = totalPaletas;
+      document.getElementById('dashKpiTopSabor').textContent = topSabor;
+      document.getElementById('dashKpiAlertas').textContent = alertasAjuste;
+
+      if (lista[0].vendidas > 0) {
+        document.getElementById('dashConsejoTexto').textContent = 
+          `El sabor estrella es ${lista[0].sabor} (${lista[0].vendidas} vendidas). Se sugiere mínimo en ${lista[0].minSugerido} y máximo en ${lista[0].maxSugerido} para asegurar abasto continuo sin saturar el congelador.`;
+      } else {
+        document.getElementById('dashConsejoTexto').textContent =
+          `A medida que se cobren ventas, este panel calculará automáticamente la rotación histórica y sugerirá ajustes preventivos para el taller de producción.`;
+      }
+
+      container.innerHTML = lista.map((it, idx) => {
+        const pct = Math.round((it.vendidas / maxVendidas) * 100);
+        return `
+          <div class="dash-ranking-row">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:1.15rem;">${it.emoji}</span>
+                <div>
+                  <strong style="color:var(--text-main); font-size:0.92rem;">#${idx + 1} ${it.sabor}</strong>
+                  <span style="font-size:0.72rem; color:var(--text-secondary); margin-left:4px;">(${it.categoria})</span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <strong style="color:var(--pink-primary); font-size:1.05rem;">${it.vendidas}</strong>
+                <span style="font-size:0.75rem; color:var(--text-muted);"> pzas</span>
+              </div>
+            </div>
+
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill" style="width: ${it.vendidas > 0 ? Math.max(8, pct) : 0}%;"></div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.76rem; color:var(--text-muted); margin-top:3px;">
+              <span>Stock actual: <strong>${it.stock}</strong> (Mín: ${it.minActual} / Máx: ${it.maxActual})</span>
+              <span class="dash-tag-status ${it.statusClass}">${it.statusBadge}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // Iniciar
