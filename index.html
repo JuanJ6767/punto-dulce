@@ -358,8 +358,8 @@
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed var(--pink-border);">
-        <span style="font-size:0.78rem; font-weight:800; color:var(--text-secondary);">📱 Vista hermana:</span>
-        <a href="preview_produccion.html" style="background:#FFE4EE; color:#881337; border:1.5px solid #F472B6; text-decoration:none; padding:4px 10px; border-radius:9999px; font-size:0.78rem; font-weight:900;">🌸 Producción Mamá ➔</a>
+        <span style="font-size:0.78rem; font-weight:800; color:var(--text-secondary);">📱 Módulo de Ventas:</span>
+        <a href="preview_produccion.html" style="background:#FFE4EE; color:#881337; border:1.5px solid #F472B6; text-decoration:none; padding:4px 10px; border-radius:9999px; font-size:0.78rem; font-weight:900;">🏭 Ir a Producción ➔</a>
       </div>
     </header>
 
@@ -489,7 +489,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 2: TICKET DE ÉXITO CON BOTÓN DIRECTO DE WHATSAPP A MAMÁ             -->
+  <!-- MODAL 2: TICKET DE ÉXITO CON BOTÓN DE ENVÍO POR WHATSAPP (ÁREA DE SURTIDO) -->
   <!-- ========================================================================= -->
   <div class="modal-backdrop hidden" id="modalTicketExito">
     <div class="modal-card" style="text-align: center;">
@@ -522,7 +522,7 @@
       </div>
 
       <!-- BOTÓN DIRECTO DE WHATSAPP AL GRUPO / CONTACTO -->
-      <a id="btnWhatsAppMama" href="#" target="_blank" class="btn-whatsapp" style="margin-bottom: 8px;">
+      <a id="btnWhatsAppSurtido" href="#" target="_blank" class="btn-whatsapp" style="margin-bottom: 8px;">
         <span style="font-size: 1.2rem;">📲</span>
         <span>Enviar Pedido por WhatsApp</span>
       </a>
@@ -553,7 +553,7 @@
       <div style="margin-top: 10px;">
         <a id="btnWhatsAppConsolidado" href="#" target="_blank" class="btn-whatsapp" style="width: 100%;">
           <span>📲</span>
-          <span id="btnTextSurtirWhatsapp">Enviar WhatsApp a Mamá</span>
+          <span id="btnTextSurtirWhatsapp">Enviar WhatsApp para Surtido</span>
         </a>
       </div>
 
@@ -615,7 +615,7 @@
         </div>
 
         <div style="margin-top: 8px; padding-top: 6px; border-top: 1.5px solid var(--pink-border); font-size: 0.95rem; font-weight: 900; color: #15803D; display: flex; justify-content: space-between;">
-          <span>💰 Dinero real a liquidar a Mamá:</span>
+          <span>💰 Dinero neto en caja a entregar:</span>
           <span id="corteDineroRealLiquidar">$0</span>
         </div>
       </div>
@@ -1190,7 +1190,7 @@
         }
       });
 
-      // Configurar enlace de WhatsApp directo para Mamá
+      // Configurar enlace de WhatsApp directo para surtido de pedido
       prepararMensajeWhatsAppTicket(venta);
 
       // Limpiar y mostrar modal de éxito
@@ -1227,7 +1227,7 @@
     }
 
     // =========================================================================
-    // GENERADOR DE WHATSAPP PARA MAMÁ (INDIVIDUAL Y CONSOLIDADO)
+    // GENERADOR DE WHATSAPP PARA SURTIDO (INDIVIDUAL Y CONSOLIDADO)
     // =========================================================================
     function prepararMensajeWhatsAppTicket(venta) {
       let mensaje = `🌸 *PALETERÍA PUNTO DULCE* 🌸\n`;
@@ -1246,7 +1246,7 @@
       mensaje += `💰 *Cobro:* $${venta.totalDinero} (${venta.metodoPago})\n`;
 
       const encoded = encodeURI(mensaje);
-      document.getElementById('btnWhatsAppMama').href = `https://api.whatsapp.com/send?text=${encoded}`;
+      document.getElementById('btnWhatsAppSurtido').href = `https://api.whatsapp.com/send?text=${encoded}`;
     }
 
     function abrirModalSurtido() {

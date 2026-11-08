@@ -2,7 +2,7 @@
  * =========================================================================
  * 🌸 PALETERÍA PUNTO DULCE - BACKEND GOOGLE APPS SCRIPT (Code.gs)
  * =========================================================================
- * Maneja Inventario, Producción (Mamá), Ventas (POS), Cuentas por Cobrar (Fiado)
+ * Maneja Inventario, Producción, Ventas (POS), Cuentas por Cobrar (Fiado)
  * y Cancelaciones/Mermas con sincronización bidireccional.
  */
 
@@ -21,9 +21,9 @@ function doGet(e) {
     }
 
     // Servir interfaz web interactiva
-    if (page === 'produccion' || page === 'mama') {
+    if (page === 'produccion' || page === 'taller') {
       return HtmlService.createHtmlOutputFromFile('produccion')
-        .setTitle('🌸 Paletería Punto Dulce - Producción Mamá')
+        .setTitle('🌸 Paletería Punto Dulce - Control de Producción')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
         .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
     } else {
@@ -352,7 +352,7 @@ function cancelarVenta(ss, can) {
 }
 
 /**
- * Ajustar stock desde la app de Producción (Mamá)
+ * Ajustar stock desde la app de Producción
  */
 function ajustarStock(ss, data) {
   const sheetInv = ss.getSheetByName('Inventario');

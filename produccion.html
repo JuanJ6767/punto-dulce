@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🌸 Paletería Punto Dulce - Producción de Mamá</title>
+  <title>🌸 Paletería Punto Dulce - Control de Producción</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -332,7 +332,7 @@
       </div>
 
       <h1 class="header-title">🌸 Producción y Re-stock</h1>
-      <p class="header-subtitle">Panel de Mamá • Stock en vivo y confirmación segura</p>
+      <p class="header-subtitle">Control de Producción • Stock en vivo y confirmación segura</p>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1.5px dashed var(--pink-border);">
         <span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">📱 Cambiar interfaz:</span>
@@ -359,7 +359,7 @@
     <section class="urgent-panel" id="urgentPanel">
       <div class="urgent-title">
         <span>🚨</span>
-        <span>¡Atención Mamá! Necesitan producción:</span>
+        <span>¡Atención! Sabores con prioridad de producción:</span>
       </div>
       <div class="urgent-list" id="urgentList"></div>
     </section>
@@ -957,7 +957,7 @@
         idSabor: pend.id,
         delta: pend.delta,
         tipoMovimiento: pend.delta > 0 ? 'Producción' : 'Merma / Ajuste',
-        notas: pend.delta > 0 ? `Lote de +${pend.delta} paletas (Mamá)` : `Ajuste (${pend.delta})`,
+        notas: pend.delta > 0 ? `Lote de +${pend.delta} paletas (Producción)` : `Ajuste (${pend.delta})`,
         idMovimiento: idMov
       });
 
