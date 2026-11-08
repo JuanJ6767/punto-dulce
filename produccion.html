@@ -1305,6 +1305,9 @@
         });
       }
 
+      // Calcular total vendido en el periodo
+      const totalPaletas = Object.values(conteoVentas).reduce((s, v) => s + v, 0);
+
       const lista = inventario.map(it => {
         const vendidas = conteoVentas[it.id] || 0;
         const minActual = it.stockMinimo || 3;
@@ -1312,23 +1315,34 @@
 
         let minSugerido = minActual;
         let maxSugerido = maxActual;
-        let demanda = 'Demanda Normal';
+        let demanda = 'Sin ventas aún';
         let statusClass = 'optimo';
-        let statusBadge = 'Meta Adecuada';
+        let statusBadge = '🟢 Meta Inicial Vigente';
 
-        if (vendidas >= (periodoDashboardActual === 'semana' ? 8 : periodoDashboardActual === 'mes' ? 20 : 40)) {
-          demanda = '🌟 Alta Demanda';
-          minSugerido = Math.max(minActual, Math.round(vendidas * 0.4) + 2);
-          maxSugerido = Math.max(maxActual, Math.round(vendidas * 1.2) + 5);
-          if (maxActual < maxSugerido || minActual < minSugerido) {
-            statusClass = 'ajustar';
-            statusBadge = `⚠️ Subir Meta a ${maxSugerido}`;
+        if (totalPaletas > 0) {
+          // Solo si hay ventas registradas en el periodo se evalúan sugerencias
+          const umbralAlta = periodoDashboardActual === 'semana' ? 8 : (periodoDashboardActual === 'mes' ? 20 : 40);
+          if (vendidas >= umbralAlta) {
+            demanda = '🌟 Alta Demanda';
+            minSugerido = Math.max(minActual, Math.round(vendidas * 0.4) + 2);
+            maxSugerido = Math.max(maxActual, Math.round(vendidas * 1.2) + 5);
+            if (maxActual < maxSugerido || minActual < minSugerido) {
+              statusClass = 'ajustar';
+              statusBadge = `⚠️ Subir Meta a ${maxSugerido}`;
+            } else {
+              statusClass = 'optimo';
+              statusBadge = '🌟 Alta Rotación';
+            }
+          } else if (totalPaletas >= 15 && vendidas === 0 && it.stock > maxActual) {
+            demanda = '🐢 Baja Rotación';
+            statusClass = 'reducir';
+            statusBadge = `💡 Reducir Lote`;
+            maxSugerido = 10;
+          } else {
+            demanda = 'Demanda Normal';
+            statusClass = 'optimo';
+            statusBadge = 'Meta Adecuada';
           }
-        } else if (vendidas === 0 && it.stock > 12) {
-          demanda = '🐢 Baja Rotación';
-          statusClass = 'reducir';
-          statusBadge = `💡 Reducir Lote`;
-          maxSugerido = 10;
         }
 
         return {
@@ -1350,7 +1364,6 @@
 
       lista.sort((a, b) => b.vendidas - a.vendidas);
 
-      const totalPaletas = lista.reduce((s, x) => s + x.vendidas, 0);
       const maxVendidas = lista.length > 0 && lista[0].vendidas > 0 ? lista[0].vendidas : 1;
       const topSabor = lista.length > 0 && lista[0].vendidas > 0 ? `${lista[0].emoji} ${lista[0].sabor}` : 'Sin ventas aún';
       const alertasAjuste = lista.filter(x => x.statusClass === 'ajustar').length;
@@ -1359,15 +1372,27 @@
       document.getElementById('dashKpiTopSabor').textContent = topSabor;
       document.getElementById('dashKpiAlertas').textContent = alertasAjuste;
 
-      if (lista[0].vendidas > 0) {
+      if (totalPaletas > 0 && lista[0].vendidas > 0) {
         document.getElementById('dashConsejoTexto').textContent = 
           `El sabor estrella es ${lista[0].sabor} (${lista[0].vendidas} pzas solicitadas). Se sugiere mantener la meta en ${lista[0].maxSugerido} y mínimo en ${lista[0].minSugerido} para abastecer oportunamente el congelador.`;
       } else {
+        const nombrePeriodo = periodoDashboardActual === 'semana' ? 'los últimos 7 días' : (periodoDashboardActual === 'mes' ? 'los últimos 30 días' : (periodoDashboardActual === 'trimestre' ? 'el último trimestre' : 'el historial'));
         document.getElementById('dashConsejoTexto').textContent =
-          `A medida que se registren ventas en el mostrador, este panel mostrará el ranking histórico y sugerirá los lotes prioritarios para elaborar en taller.`;
+          `Aún no se registran ventas cobradas en ${nombrePeriodo}. En cuanto comiencen a registrarse tickets en el mostrador, este panel mostrará el ranking de demanda real y sugerirá los lotes prioritarios para elaborar en taller.`;
       }
 
-      container.innerHTML = lista.map((it, idx) => {
+      let bannerHtml = '';
+      if (totalPaletas === 0) {
+        const nombrePeriodo = periodoDashboardActual === 'semana' ? 'los últimos 7 días' : (periodoDashboardActual === 'mes' ? 'los últimos 30 días' : (periodoDashboardActual === 'trimestre' ? 'el último trimestre' : 'el historial'));
+        bannerHtml = `
+          <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 8px; font-size: 0.8rem; color: #64748B;">
+            ⏳ <strong>Sin ventas registradas en ${nombrePeriodo}.</strong><br>
+            El congelador mantiene sus metas y mínimos iniciales vigentes.
+          </div>
+        `;
+      }
+
+      container.innerHTML = bannerHtml + lista.map((it, idx) => {
         const pct = Math.round((it.vendidas / maxVendidas) * 100);
         return `
           <div class="dash-ranking-row">

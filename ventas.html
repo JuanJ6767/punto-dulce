@@ -1937,32 +1937,45 @@
         });
       }
 
+      // Calcular total vendido en el periodo
+      const totalPaletas = Object.values(conteoVentas).reduce((s, v) => s + v, 0);
+
       // Preparar lista con datos de inventario
       const lista = inventario.map(it => {
         const vendidas = conteoVentas[it.id] || 0;
         const minActual = it.stockMinimo || 3;
         const maxActual = it.stockMaximo || 20;
 
-        // Sugerencia dinámica según demanda del periodo
         let minSugerido = minActual;
         let maxSugerido = maxActual;
-        let demanda = 'Demanda Estable';
+        let demanda = 'Sin ventas aún';
         let statusClass = 'optimo';
-        let statusBadge = 'Balance Óptimo';
+        let statusBadge = '🟢 Stock Inicial Vigente';
 
-        if (vendidas >= (periodoDashboardActual === 'semana' ? 8 : periodoDashboardActual === 'mes' ? 20 : 40)) {
-          demanda = '🌟 Alta Demanda';
-          minSugerido = Math.max(minActual, Math.round(vendidas * 0.4) + 2);
-          maxSugerido = Math.max(maxActual, Math.round(vendidas * 1.2) + 5);
-          if (minActual < minSugerido) {
-            statusClass = 'ajustar';
-            statusBadge = `⚠️ Subir Mín a ${minSugerido}`;
+        if (totalPaletas > 0) {
+          // Solo si hay ventas registradas en el periodo se evalúan sugerencias
+          const umbralAlta = periodoDashboardActual === 'semana' ? 8 : (periodoDashboardActual === 'mes' ? 20 : 40);
+          if (vendidas >= umbralAlta) {
+            demanda = '🌟 Alta Demanda';
+            minSugerido = Math.max(minActual, Math.round(vendidas * 0.4) + 2);
+            maxSugerido = Math.max(maxActual, Math.round(vendidas * 1.2) + 5);
+            if (minActual < minSugerido) {
+              statusClass = 'ajustar';
+              statusBadge = `⚠️ Subir Mín a ${minSugerido}`;
+            } else {
+              statusClass = 'optimo';
+              statusBadge = '🌟 Alta Rotación';
+            }
+          } else if (totalPaletas >= 15 && vendidas === 0 && it.stock > maxActual) {
+            demanda = '🐢 Baja Rotación';
+            statusClass = 'reducir';
+            statusBadge = `💡 Reducir Máx a 10`;
+            maxSugerido = 10;
+          } else {
+            demanda = 'Demanda Estable';
+            statusClass = 'optimo';
+            statusBadge = 'Balance Óptimo';
           }
-        } else if (vendidas === 0 && it.stock > 12) {
-          demanda = '🐢 Baja Rotación';
-          statusClass = 'reducir';
-          statusBadge = `💡 Reducir Máx a 10`;
-          maxSugerido = 10;
         }
 
         return {
@@ -1985,7 +1998,6 @@
       // Ordenar por más vendidos primero
       lista.sort((a, b) => b.vendidas - a.vendidas);
 
-      const totalPaletas = lista.reduce((s, x) => s + x.vendidas, 0);
       const maxVendidas = lista.length > 0 && lista[0].vendidas > 0 ? lista[0].vendidas : 1;
       const topSabor = lista.length > 0 && lista[0].vendidas > 0 ? `${lista[0].emoji} ${lista[0].sabor}` : 'Sin ventas aún';
       const alertasAjuste = lista.filter(x => x.statusClass === 'ajustar').length;
@@ -1995,15 +2007,27 @@
       document.getElementById('dashKpiTopSabor').textContent = topSabor;
       document.getElementById('dashKpiAlertas').textContent = alertasAjuste;
 
-      if (lista[0].vendidas > 0) {
+      if (totalPaletas > 0 && lista[0].vendidas > 0) {
         document.getElementById('dashConsejoTexto').textContent = 
           `El sabor estrella es ${lista[0].sabor} (${lista[0].vendidas} vendidas). Se sugiere mínimo en ${lista[0].minSugerido} y máximo en ${lista[0].maxSugerido} para asegurar abasto continuo sin saturar el congelador.`;
       } else {
+        const nombrePeriodo = periodoDashboardActual === 'semana' ? 'los últimos 7 días' : (periodoDashboardActual === 'mes' ? 'los últimos 30 días' : (periodoDashboardActual === 'trimestre' ? 'el último trimestre' : 'el historial'));
         document.getElementById('dashConsejoTexto').textContent =
-          `A medida que se cobren ventas, este panel calculará automáticamente la rotación histórica y sugerirá ajustes preventivos para el taller de producción.`;
+          `Aún no se registran ventas cobradas en ${nombrePeriodo}. En cuanto comiencen a registrarse tickets en el mostrador, este panel calculará automáticamente la rotación real y sugerirá ajustes preventivos.`;
       }
 
-      container.innerHTML = lista.map((it, idx) => {
+      let bannerHtml = '';
+      if (totalPaletas === 0) {
+        const nombrePeriodo = periodoDashboardActual === 'semana' ? 'los últimos 7 días' : (periodoDashboardActual === 'mes' ? 'los últimos 30 días' : (periodoDashboardActual === 'trimestre' ? 'el último trimestre' : 'el historial'));
+        bannerHtml = `
+          <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 8px; font-size: 0.8rem; color: #64748B;">
+            ⏳ <strong>Sin ventas registradas en ${nombrePeriodo}.</strong><br>
+            Tus stocks mínimos y máximos actuales se mantienen al 100% como balance inicial vigente.
+          </div>
+        `;
+      }
+
+      container.innerHTML = bannerHtml + lista.map((it, idx) => {
         const pct = Math.round((it.vendidas / maxVendidas) * 100);
         return `
           <div class="dash-ranking-row">
