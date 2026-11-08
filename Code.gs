@@ -8,7 +8,8 @@
 
 function doGet(e) {
   try {
-    const action = e.parameter.action || 'getInventario';
+    const page = (e && e.parameter && e.parameter.p) ? e.parameter.p : '';
+    const action = (e && e.parameter && e.parameter.action) ? e.parameter.action : '';
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
     if (action === 'getInventario') {
@@ -19,9 +20,21 @@ function doGet(e) {
       return respuestaJson({ ok: true, mensaje: 'Punto Dulce API activa' });
     }
 
-    return respuestaJson({ ok: false, error: 'Acción no reconocida en doGet' });
+    // Servir interfaz web interactiva
+    if (page === 'produccion' || page === 'mama') {
+      return HtmlService.createHtmlOutputFromFile('produccion')
+        .setTitle('🌸 Paletería Punto Dulce - Producción Mamá')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    } else {
+      return HtmlService.createHtmlOutputFromFile('ventas')
+        .setTitle('🌸 Paletería Punto Dulce - Punto de Venta (POS)')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
   } catch (err) {
-    return respuestaJson({ ok: false, error: err.toString() });
+    // Si aún no se han creado los archivos HTML en Apps Script, responder con el inventario
+    return obtenerInventario(SpreadsheetApp.getActiveSpreadsheet());
   }
 }
 
