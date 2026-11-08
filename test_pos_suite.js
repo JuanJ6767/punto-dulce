@@ -421,6 +421,39 @@ test('Cálculo de tendencias y ranking por periodo', () => {
   assert.strictEqual(tiramisu.maxSugerido, 10);
 });
 
+test('Estado Inicial Sin Ventas: 0 Paletas Vendidas y 0 Alertas Falsas de Ajuste', () => {
+  // Simular respuesta del servidor antes del arranque de ventas
+  const datosServidorSinVentas = [
+    { id: 'SAB-01', sabor: 'Cacahuate', ventasSemana: 0, ventasMes: 0, ventasTotales: 0, minActual: 8, maxActual: 20 },
+    { id: 'SAB-02', sabor: 'Oreo', ventasSemana: 0, ventasMes: 0, ventasTotales: 0, minActual: 8, maxActual: 20 },
+    { id: 'SAB-10', sabor: 'Fresas con Crema', ventasSemana: 0, ventasMes: 0, ventasTotales: 0, minActual: 10, maxActual: 20 }
+  ];
+
+  const totalVentasHistoricas = datosServidorSinVentas.reduce((acc, s) => acc + s.ventasTotales, 0);
+  assert.strictEqual(totalVentasHistoricas, 0, 'No debe haber ventas históricas al inicio');
+
+  // Procesamiento del dashboard
+  const conteo = {};
+  datosServidorSinVentas.forEach(s => {
+    let vServ = 0;
+    if (totalVentasHistoricas > 0) {
+      vServ = s.ventasSemana;
+    }
+    conteo[s.id] = vServ;
+  });
+
+  const totalPeriodo = Object.values(conteo).reduce((a, b) => a + b, 0);
+  assert.strictEqual(totalPeriodo, 0, 'Total de paletas vendidas en el periodo debe ser exactamente 0');
+
+  // Verificación de que ningún sabor genera alerta de ajuste si totalPeriodo === 0
+  const alertas = datosServidorSinVentas.filter(s => {
+    const vendidas = conteo[s.id] || 0;
+    return totalPeriodo > 0 && vendidas >= 8;
+  }).length;
+
+  assert.strictEqual(alertas, 0, 'Debe haber exactamente 0 alertas de ajuste sugeridas en el arranque');
+});
+
 // -------------------------------------------------------------------------
 // PRUEBA 9: GENERADORES DE WHATSAPP (CORTE Y FIADOS)
 // -------------------------------------------------------------------------

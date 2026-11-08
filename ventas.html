@@ -2358,12 +2358,22 @@
 
       // Si hay datos del servidor, incorporar valores de la hoja de cálculo
       if (datosDashboardServidor) {
+        // Validar si existen ventas históricas registradas en la hoja
+        const totalVentasHistoricas = datosDashboardServidor.reduce((acc, s) => acc + Number(s.ventasTotales || 0), 0);
+
         datosDashboardServidor.forEach(s => {
           let vServ = 0;
-          if (periodoDashboardActual === 'semana') vServ = s.ventasSemana;
-          else if (periodoDashboardActual === 'mes') vServ = s.ventasMes;
-          else if (periodoDashboardActual === 'trimestre') vServ = s.ventasTrimestre;
-          else vServ = s.ventasTotales;
+          if (totalVentasHistoricas > 0) {
+            if (periodoDashboardActual === 'semana') vServ = Number(s.ventasSemana || 0);
+            else if (periodoDashboardActual === 'mes') vServ = Number(s.ventasMes || 0);
+            else if (periodoDashboardActual === 'trimestre') vServ = Number(s.ventasTrimestre || 0);
+            else vServ = Number(s.ventasTotales || 0);
+
+            // Coherencia matemática: ventas de un periodo no pueden superar las ventas totales
+            if (s.ventasTotales !== undefined) {
+              vServ = Math.min(vServ, Number(s.ventasTotales || 0));
+            }
+          }
           conteoVentas[s.id] = Math.max(conteoVentas[s.id] || 0, vServ);
         });
       }
@@ -2383,8 +2393,8 @@
         let statusClass = 'optimo';
         let statusBadge = '🟢 Stock Inicial Vigente';
 
-        if (totalPaletas > 0) {
-          // Solo si hay ventas registradas en el periodo se evalúan sugerencias
+        if (totalPaletas > 0 && vendidas > 0) {
+          // Solo si hay ventas registradas y el sabor tiene ventas reales en el periodo se evalúan sugerencias
           const umbralAlta = periodoDashboardActual === 'semana' ? 8 : (periodoDashboardActual === 'mes' ? 20 : 40);
           if (vendidas >= umbralAlta) {
             demanda = '🌟 Alta Demanda';
@@ -2397,16 +2407,16 @@
               statusClass = 'optimo';
               statusBadge = '🌟 Alta Rotación';
             }
-          } else if (totalPaletas >= 15 && vendidas === 0 && it.stock > maxActual) {
-            demanda = '🐢 Baja Rotación';
-            statusClass = 'reducir';
-            statusBadge = `💡 Reducir Máx a 10`;
-            maxSugerido = 10;
           } else {
             demanda = 'Demanda Estable';
             statusClass = 'optimo';
             statusBadge = 'Balance Óptimo';
           }
+        } else if (totalPaletas >= 20 && vendidas === 0 && it.stock > maxActual) {
+          demanda = '🐢 Baja Rotación';
+          statusClass = 'reducir';
+          statusBadge = `💡 Reducir Máx a 10`;
+          maxSugerido = 10;
         }
 
         return {

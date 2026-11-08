@@ -516,28 +516,30 @@ function obtenerEstadisticas(ss) {
       sabor: String(row[1]),
       categoria: String(row[2]),
       stockActual: Number(row[3]) || 0,
-      minActual: Number(row[4]) || 0,
-      maxActual: Number(row[5]) || 0,
-      ventasSemana: Number(row[6]) || 0,
-      ventasMes: Number(row[7]) || 0,
+      ventasSemana: Number(row[4]) || 0,
+      ventasMes: Number(row[5]) || 0,
+      minActual: Number(row[6]) || 3,
+      maxActual: Number(row[7]) || 20,
       ventasTrimestre: Number(row[8]) || 0,
       ventasTotales: Number(row[9]) || 0,
-      minSugerido: Number(row[10]) || Number(row[4]) || 3,
-      maxSugerido: Number(row[11]) || Number(row[5]) || 20,
-      nivelDemanda: String(row[12] || 'Demanda Estable')
+      minSugerido: Number(row[10]) || Number(row[6]) || 3,
+      maxSugerido: Number(row[11]) || Number(row[7]) || 20,
+      nivelDemanda: String(row[12] || 'Sin ventas aún')
     });
   }
 
   // Ordenar por ventas totales
   sabores.sort(function(a, b) { return b.ventasTotales - a.ventasTotales; });
 
+  const totalPaletasVendidas = sabores.reduce(function(s, x) { return s + x.ventasTotales; }, 0);
+
   return respuestaJson({
     ok: true,
     timestamp: new Date().toISOString(),
     estadisticas: {
       sabores: sabores,
-      totalPaletasVendidas: sabores.reduce(function(s, x) { return s + x.ventasTotales; }, 0),
-      topSabor: sabores.length > 0 ? sabores[0].sabor : 'N/A'
+      totalPaletasVendidas: totalPaletasVendidas,
+      topSabor: (sabores.length > 0 && totalPaletasVendidas > 0) ? sabores[0].sabor : 'Sin ventas aún'
     }
   });
 }
