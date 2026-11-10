@@ -717,7 +717,10 @@
   <div class="modal-backdrop hidden" id="modalCorte">
     <div class="modal-card">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-        <h3 class="modal-title">📊 Corte de Caja del Día</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 class="modal-title" style="margin-bottom: 0;">📊 Corte de Caja del Día</h3>
+          <span id="corteSyncIndicator" style="font-size: 0.72rem; font-weight: 800; background: #E0F2FE; color: #0284C7; padding: 2px 7px; border-radius: 9999px; border: 1px solid #BAE6FD;">🟢 Sincronizado</span>
+        </div>
         <button class="btn-stepper" style="border: none; font-size: 1.3rem;" onclick="cerrarModales()">✕</button>
       </div>
 
@@ -1826,6 +1829,15 @@
     // CORTE DE CAJA Y CANCELACIÓN DE PEDIDOS (REINGRESO O MERMA)
     // =========================================================================
     function abrirModalCorte() {
+      // 1. Mostrar de inmediato la vista con datos locales (0 demora / Offline-first)
+      renderizarVistaCorte();
+      document.getElementById('modalCorte').classList.remove('hidden');
+
+      // 2. Si hay conexión, consultar la nube en segundo plano para fusionar ventas de otros dispositivos
+      sincronizarVentasCorteDesdeNube();
+    }
+
+    function renderizarVistaCorte() {
       const totalD = ventasDelDia.reduce((s, v) => s + v.totalDinero, 0);
       const totalP = ventasDelDia.reduce((s, v) => s + v.totalPiezas, 0);
       const efec = ventasDelDia.filter(v => v.metodoPago === 'Efectivo').reduce((s, v) => s + v.totalDinero, 0);
@@ -1886,8 +1898,85 @@
           </div>
         `).join('');
       }
+    }
 
-      document.getElementById('modalCorte').classList.remove('hidden');
+    async function sincronizarVentasCorteDesdeNube() {
+      if (!APPS_SCRIPT_URL) return;
+      const indicator = document.getElementById('corteSyncIndicator');
+      if (indicator) {
+        indicator.textContent = '🔄 Consultando nube...';
+        indicator.style.background = '#FEF3C7';
+        indicator.style.color = '#92400E';
+        indicator.style.borderColor = '#FCD34D';
+      }
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getVentasHoy`);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.ventas)) {
+          // Fusión híbrida respetando IDs y folios
+          const mapaVentas = new Map();
+
+          // 1. Incorporar ventas remotas de la nube (vienen de cualquier dispositivo)
+          data.ventas.forEach(vRem => {
+            mapaVentas.set(vRem.id, vRem);
+            if (vRem.folio) {
+              mapaVentas.set(vRem.folio, vRem);
+            }
+          });
+
+          // 2. Conservar ventas locales (incluyendo aquellas que se hayan cobrado offline y aún estén en el equipo)
+          ventasDelDia.forEach(vLoc => {
+            if (!mapaVentas.has(vLoc.id) && !mapaVentas.has(vLoc.folio)) {
+              mapaVentas.set(vLoc.id, vLoc);
+            }
+          });
+
+          // 3. Convertir mapa a lista única y ordenar por folio/hora
+          const listaUnificada = Array.from(new Set(mapaVentas.values()));
+          listaUnificada.sort((a, b) => {
+            const numA = parseInt((a.folio || '').replace(/\D/g, '') || 0, 10);
+            const numB = parseInt((b.folio || '').replace(/\D/g, '') || 0, 10);
+            return numB - numA; // Más recientes arriba
+          });
+
+          ventasDelDia = listaUnificada;
+          localStorage.setItem('pd_ventas_dia', JSON.stringify(ventasDelDia));
+
+          // 4. Sincronizar el consecutivo de folio global para que el siguiente ticket sea correlativo
+          if (data.maxFolio && data.maxFolio >= consecutivoFolio) {
+            consecutivoFolio = data.maxFolio + 1;
+            localStorage.setItem('pd_folio_consecutivo', consecutivoFolio);
+            const nextBadge = document.getElementById('nextFolioBadge');
+            if (nextBadge) nextBadge.textContent = '#PD-' + String(consecutivoFolio).padStart(3, '0');
+          }
+
+          // 5. Re-renderizar la vista con los datos consolidados
+          renderizarVistaCorte();
+
+          if (indicator) {
+            indicator.textContent = `🟢 En vivo (${data.totalVentasHoy} en nube)`;
+            indicator.style.background = '#DCFCE7';
+            indicator.style.color = '#15803D';
+            indicator.style.borderColor = '#86EFAC';
+          }
+        } else {
+          if (indicator) {
+            indicator.textContent = '🟢 Modo Local';
+            indicator.style.background = '#E0F2FE';
+            indicator.style.color = '#0284C7';
+            indicator.style.borderColor = '#BAE6FD';
+          }
+        }
+      } catch (err) {
+        // En caso de corte de internet, el corte local se mantiene visible sin errores
+        if (indicator) {
+          indicator.textContent = '🟡 Modo Local (Sin conexión)';
+          indicator.style.background = '#FEF3C7';
+          indicator.style.color = '#92400E';
+          indicator.style.borderColor = '#FCD34D';
+        }
+      }
     }
 
     function abrirModalCancelarVenta(idVenta) {
@@ -2270,6 +2359,13 @@
           }
         } catch (errCuentas) {
           // Si falla conexión temporal, se mantiene copia en localStorage
+        }
+
+        // Sincronizar ventas del día y folios para corte y pedidos
+        try {
+          await sincronizarVentasCorteDesdeNube();
+        } catch (errVentasCorte) {
+          // Si falla, se conservan los datos locales de ventas
         }
       } catch (err) {
         if (!silencioso && textEl) textEl.textContent = '🟡 Modo Local';

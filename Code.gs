@@ -18,6 +18,8 @@ function doGet(e) {
       return obtenerCuentasPorCobrar(ss);
     } else if (action === 'getEstadisticas') {
       return obtenerEstadisticas(ss);
+    } else if (action === 'getVentasHoy') {
+      return obtenerVentasHoy(ss);
     } else if (action === 'ping') {
       return respuestaJson({ ok: true, mensaje: 'Punto Dulce API activa' });
     }
@@ -278,6 +280,73 @@ function obtenerCuentasPorCobrar(ss) {
     });
   }
   return respuestaJson({ ok: true, deudas: deudas });
+}
+
+/**
+ * Obtiene las ventas registradas hoy desde la hoja "Ventas" para sincronización híbrida
+ */
+function obtenerVentasHoy(ss) {
+  const sheet = ss.getSheetByName('Ventas');
+  if (!sheet) return respuestaJson({ ok: true, ventas: [], maxFolio: 0 });
+
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return respuestaJson({ ok: true, ventas: [], maxFolio: 0 });
+
+  const hoyStr = Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone() || 'GMT-6', 'yyyy-MM-dd');
+  const ventas = [];
+  let maxFolioNum = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const r = data[i];
+    if (!r[2]) continue; // Folio vacío
+
+    // Interpretar fecha de la fila
+    let fechaFilaStr = '';
+    if (r[0] instanceof Date) {
+      fechaFilaStr = Utilities.formatDate(r[0], ss.getSpreadsheetTimeZone() || 'GMT-6', 'yyyy-MM-dd');
+    } else {
+      fechaFilaStr = String(r[0]);
+    }
+
+    // Extraer número de folio para calcular el siguiente correlativo
+    const folioStr = String(r[2]);
+    const matchNum = folioStr.match(/#?PD-?(\d+)/i);
+    if (matchNum && matchNum[1]) {
+      const n = parseInt(matchNum[1], 10);
+      if (n > maxFolioNum) maxFolioNum = n;
+    }
+
+    // Filtrar solo las ventas del día
+    const esHoy = fechaFilaStr === hoyStr || fechaFilaStr.includes(new Date().toLocaleDateString());
+    if (esHoy) {
+      ventas.push({
+        id: String(r[12] || ('VEN-ROW-' + (i + 1))),
+        folio: folioStr,
+        totalDinero: Number(r[3]) || 0,
+        totalPiezas: Number(r[4]) || 0,
+        metodoPago: String(r[5] || 'Efectivo'),
+        estadoPago: String(r[6] || 'Pagado'),
+        deudor: String(r[7] || ''),
+        abonoInicial: Number(r[8]) || 0,
+        saldoDeudor: Number(r[9]) || 0,
+        resumen: String(r[10] || ''),
+        nota: String(r[11] || ''),
+        hora: r[1] instanceof Date ? Utilities.formatDate(r[1], ss.getSpreadsheetTimeZone() || 'GMT-6', 'HH:mm') : String(r[1] || ''),
+        fecha: fechaFilaStr,
+        surtido: false
+      });
+    }
+  }
+
+  // Devolver las más recientes primero
+  ventas.reverse();
+
+  return respuestaJson({
+    ok: true,
+    ventas: ventas,
+    maxFolio: maxFolioNum,
+    totalVentasHoy: ventas.length
+  });
 }
 
 /**

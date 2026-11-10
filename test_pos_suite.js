@@ -661,6 +661,47 @@ test('Prevención de Cuentas Duplicadas y Acumulación de Saldo por Compañero',
   assert.strictEqual(encontrados.length, 2, 'Deben encontrarse 2 registros correspondientes a Luis');
 });
 
+test('Fusión Híbrida de Corte Multidispositivo: Nube + Local sin Duplicados y Desglose Exacto', () => {
+  // Simular venta 1 registrada desde celular en la nube por Transferencia
+  const ventasNube = [
+    { id: 'VEN-001', folio: '#PD-001', totalDinero: 30, totalPiezas: 2, metodoPago: 'Transferencia', saldoDeudor: 0, abonoInicial: 0 },
+    { id: 'VEN-002', folio: '#PD-002', totalDinero: 18, totalPiezas: 1, metodoPago: 'Efectivo', saldoDeudor: 0, abonoInicial: 0 }
+  ];
+
+  // Simular venta 3 registrada localmente en la laptop sin haber sincronizado aún
+  const ventasLocales = [
+    { id: 'VEN-003', folio: '#PD-003', totalDinero: 45, totalPiezas: 3, metodoPago: 'Fiado', saldoDeudor: 30, abonoInicial: 15 },
+    { id: 'VEN-001', folio: '#PD-001', totalDinero: 30, totalPiezas: 2, metodoPago: 'Transferencia', saldoDeudor: 0, abonoInicial: 0 } // Duplicada ya en nube
+  ];
+
+  // Algoritmo de fusión híbrida
+  const mapa = new Map();
+  ventasNube.forEach(v => mapa.set(v.id, v));
+  ventasLocales.forEach(v => {
+    if (!mapa.has(v.id)) mapa.set(v.id, v);
+  });
+
+  const unificadas = Array.from(mapa.values());
+  assert.strictEqual(unificadas.length, 3, 'Deben ser exactamente 3 ventas únicas consolidadas');
+
+  // Cálculos de corte
+  const totalD = unificadas.reduce((s, v) => s + v.totalDinero, 0);
+  const totalP = unificadas.reduce((s, v) => s + v.totalPiezas, 0);
+  const efec = unificadas.filter(v => v.metodoPago === 'Efectivo').reduce((s, v) => s + v.totalDinero, 0);
+  const transf = unificadas.filter(v => v.metodoPago === 'Transferencia').reduce((s, v) => s + v.totalDinero, 0);
+  const fiado = unificadas.filter(v => v.metodoPago === 'Fiado').reduce((s, v) => s + v.saldoDeudor, 0);
+  const abonos = unificadas.filter(v => v.metodoPago === 'Fiado').reduce((s, v) => s + v.abonoInicial, 0);
+  const liquidar = efec + transf + abonos;
+
+  assert.strictEqual(totalD, 93, 'Total vendido debe ser $93 (30+18+45)');
+  assert.strictEqual(totalP, 6, 'Total paletas debe ser 6 (2+1+3)');
+  assert.strictEqual(transf, 30, 'Transferencias debe ser exactamente $30');
+  assert.strictEqual(efec, 18, 'Efectivo debe ser $18');
+  assert.strictEqual(fiado, 30, 'Fiado restante debe ser $30');
+  assert.strictEqual(abonos, 15, 'Abonos cobrados debe ser $15');
+  assert.strictEqual(liquidar, 63, 'Dinero neto liquidar debe ser $63 (18+30+15)');
+});
+
 console.log('\n========================================================');
 console.log(`RESUMEN DE PRUEBAS: ${passCount} PASADAS, ${failCount} FALLIDAS`);
 console.log('========================================================\n');
