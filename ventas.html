@@ -905,7 +905,7 @@
     ];
 
     // Variables reactivas
-    let carrito = []; // { id, sabor, precio, emoji, cantidad }
+    let carrito = JSON.parse(localStorage.getItem('pd_borrador_carrito') || '[]'); // Auto-guardado en tiempo real
     let tipoFiltroActivo = 'cat'; // 'cat' o 'precio'
     let valorFiltroActivo = 'Todas';
     let busqueda = '';
@@ -1118,6 +1118,9 @@
     }
 
     function actualizarBarraCarrito() {
+      // Auto-guardado continuo en almacenamiento local para no perder el pedido al cambiar de app o bloquear pantalla
+      localStorage.setItem('pd_borrador_carrito', JSON.stringify(carrito));
+
       const totalPiezas = carrito.reduce((sum, item) => sum + item.cantidad, 0);
       const totalDinero = carrito.reduce((sum, item) => sum + (item.cantidad * item.precio), 0);
 
@@ -1503,6 +1506,7 @@
       // Limpiar y mostrar modal de éxito
       setTimeout(() => {
         carrito = [];
+        localStorage.removeItem('pd_borrador_carrito');
         renderizarPOS();
         actualizarBarraCarrito();
         verificarStockCritico();

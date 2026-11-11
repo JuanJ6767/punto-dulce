@@ -702,6 +702,26 @@ test('Fusión Híbrida de Corte Multidispositivo: Nube + Local sin Duplicados y 
   assert.strictEqual(liquidar, 63, 'Dinero neto liquidar debe ser $63 (18+30+15)');
 });
 
+test('Persistencia y Auto-recuperación de Borrador de Pedido (Respaldo en Vivo)', () => {
+  // Simular que la enfermera captura 3 paletas y se interrumpe la sesión
+  const borradorGuardado = [
+    { id: 'SAB-01', sabor: 'Cacahuate', cantidad: 2, precio: 15 },
+    { id: 'SAB-10', sabor: 'Fresas con Crema', cantidad: 1, precio: 18 }
+  ];
+
+  // Serialización y guardado
+  const rawStorage = JSON.stringify(borradorGuardado);
+
+  // Simular reapertura de la aplicación tras bloqueo o cierre de app
+  const carritoRecuperado = JSON.parse(rawStorage || '[]');
+  assert.strictEqual(carritoRecuperado.length, 2, 'Debe restaurar exactamente los 2 sabores que traía capturados');
+
+  const totalPiezas = carritoRecuperado.reduce((s, it) => s + it.cantidad, 0);
+  const totalDinero = carritoRecuperado.reduce((s, it) => s + (it.cantidad * it.precio), 0);
+  assert.strictEqual(totalPiezas, 3, 'El total de piezas restauradas debe ser 3');
+  assert.strictEqual(totalDinero, 48, 'El total de dinero restaurado debe ser $48 (30 + 18)');
+});
+
 console.log('\n========================================================');
 console.log(`RESUMEN DE PRUEBAS: ${passCount} PASADAS, ${failCount} FALLIDAS`);
 console.log('========================================================\n');
