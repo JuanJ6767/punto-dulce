@@ -757,8 +757,11 @@
         </a>
       </div>
 
-      <div class="modal-actions" style="margin-top: 8px;">
+      <div class="modal-actions" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <button class="btn-cancel" onclick="cerrarModales()" style="width: 100%;">Cerrar</button>
+        <button type="button" class="btn-cancel" onclick="confirmarCierreDeTurno()" style="width: 100%; color: #9F1239; border-color: #FECDD3; background: #FFF1F2; font-weight: 800;">
+          🏁 Cerrar Turno
+        </button>
       </div>
     </div>
   </div>
@@ -915,7 +918,19 @@
 
     // Persistencia local en LocalStorage
     let consecutivoFolio = Number(localStorage.getItem('pd_folio_consecutivo') || 1);
+    const fechaHoyStr = new Date().toLocaleDateString();
+    const fechaUltimoTurno = localStorage.getItem('pd_fecha_turno_corte') || fechaHoyStr;
+
     let ventasDelDia = JSON.parse(localStorage.getItem('pd_ventas_dia') || '[]');
+    // Si la fecha del sistema cambió a un nuevo día, archivar y reiniciar la caja de hoy en 0
+    if (fechaUltimoTurno !== fechaHoyStr) {
+      ventasDelDia = [];
+      localStorage.setItem('pd_ventas_dia', '[]');
+      localStorage.setItem('pd_fecha_turno_corte', fechaHoyStr);
+    } else {
+      localStorage.setItem('pd_fecha_turno_corte', fechaHoyStr);
+    }
+
     let cuentasPorCobrar = JSON.parse(localStorage.getItem('pd_cuentas_cobrar') || '[]');
     let ventasHistorico = JSON.parse(localStorage.getItem('pd_ventas_historico') || '[]');
     let datosDashboardServidor = null;
@@ -1977,6 +1992,27 @@
           indicator.style.borderColor = '#FCD34D';
         }
       }
+    }
+
+    function confirmarCierreDeTurno() {
+      if (ventasDelDia.length === 0) {
+        mostrarAvisoRapido('La caja ya se encuentra en $0');
+        return;
+      }
+
+      const totalDineroEntregar = document.getElementById('corteDineroRealLiquidar').textContent;
+      const confirmacion = confirm(`¿Deseas cerrar el turno de caja actual?\n\nSe liquidaron: ${totalDineroEntregar}\n\nLos tickets quedarán guardados en tu historial de Google Sheets y la caja se reiniciará en $0 para el siguiente turno.`);
+      if (!confirmacion) return;
+
+      // Limpiar ventas del turno actual en memoria local
+      ventasDelDia = [];
+      localStorage.setItem('pd_ventas_dia', '[]');
+      localStorage.setItem('pd_fecha_turno_corte', new Date().toLocaleDateString());
+
+      renderizarVistaCorte();
+      cerrarModales();
+      mostrarAvisoRapido('✅ Turno liquidado. Caja lista en $0');
+      actualizarBadgesHeader();
     }
 
     function abrirModalCancelarVenta(idVenta) {
